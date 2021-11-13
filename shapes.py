@@ -1,4 +1,5 @@
 import time
+import math
 
 # Main moving block
 class magicSquare(object):
@@ -12,6 +13,12 @@ class magicSquare(object):
         self.x1 = centerX + width / 2
         self.y0 = centerY - height / 2
         self.y1 = centerY + height / 2
+        self.dt = 5
+        self.angularFrequency = math.pi / self.dt
+
+    # Getting the time taken for the square to jump across an obstacle
+    # def get_time(self, time):
+    #     self.time = time
 
     # Making square jump. But based on physics
     def jump(self):
@@ -42,6 +49,10 @@ class magicSquare(object):
         self.y1 = self.centerY + self.height / 2
 
     def fly(self):
+        return 42
+
+    # Constant rotating of the square
+    def rotate(self):
         return 42
 
     # Constant dropping of the square based on gravity

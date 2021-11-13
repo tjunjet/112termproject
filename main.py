@@ -20,12 +20,14 @@ import pitch_detection
 # ------------------------------------------------------------------------------
 
 def appStarted(app):
+    app.mode = "splashScreenMode"
     app.label = 'Geometry Dash!'
     app.height = 400
     app.width = 700
     app.ground = (0, app.width, app.height * 0.75, app.height * 0.75)
     app.magicSquare = shapes.magicSquare(30, 30, "green", 
                        app.width / 5 + 10 , app.height * 0.75 - 15)
+    app.isInAir = False
     app.typesOfObstacles = []
 
     # List of obstacles that the magic square has not passed
@@ -52,6 +54,20 @@ def appStarted(app):
     # Adding additional parameters that we have configured
     soundOptions(app)
     timerOptions(app)
+    graphicOptions(app)
+    imageOptions(app)
+
+# Drawing imageOptions
+def imageOptions(app):
+    # Creating images for the splash screen
+    app.splashScreenBackground = app.loadImage("Images/geometry_dash_background.jpeg")
+    app.splashScreenLogo = app.loadImage("Images/geometry-dash-logo.png")
+
+# Graphics parameters
+def graphicOptions(app):
+    # Using a cool background image
+    app.image1 = app.loadImage('background-min.jpeg')
+    app.image2 = app.scaleImage(app.image1, 2/3)
 
 # Function that contains all the sound parameters
 def soundOptions(app):
@@ -60,9 +76,11 @@ def soundOptions(app):
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.get_bpm(app.filename)
-    # Getting the parameters to play song
-    app.sound = sound.Sound(app.filename)
-    app.sound.start()
+    # Creating splash screen music
+    app.splashScreenMusic = sound.Sound("Music/Geometry Dash OST _ Title Screen (Menu Loop).wav")
+    app.splashScreenMusic.start()
+    # Getting the parameters to play song when the game starts
+    app.gameMusic = sound.Sound(app.filename)
     # Period let's us know the time interval in which obstacles appear
     # Using the physics equation f = 1 / T
     # Frequency is the number of beats per minute (By definition of frequency)
@@ -82,8 +100,6 @@ def timerOptions(app):
 # ------------------------------------------------------------------------------
 #                               PROCESSING MUSIC
 # ------------------------------------------------------------------------------
-
-
 
 # ------------------------------------------------------------------------------
 #                            VIEW: DRAWING FUNCTIONS
@@ -133,13 +149,6 @@ def drawGameOver(app, canvas):
     canvas.create_text(app.width / 2, app.height / 2, text="Game Over!",
                        fill="black", font="Helvetica 26 bold underline")
 
-def redrawAll(app, canvas):
-    drawBackground(app, canvas)
-    drawGround(app, canvas)
-    drawMagicSquare(app, canvas)
-    drawObstacles(app, canvas)
-    if app.gameover:
-        drawGameOver(app, canvas)
 
 # ------------------------------------------------------------------------------
 #                              CONTROLLER FUNCTIONS
@@ -194,7 +203,61 @@ def checkCollision(app):
             return True
     return False
 
-def timerFired(app):
+# ------------------------------------------------------------------------------
+##########################  SPLASH SCREEN MODE  ################################
+# ------------------------------------------------------------------------------
+
+def splashScreenMode_redrawAll(app, canvas):
+    # Draw the background
+    canvas.create_image(app.width / 2, app.height / 2, 
+                        image = ImageTk.PhotoImage(app.splashScreenBackground))
+    canvas.create_image(app.width / 2, app.height / 2 - 50, 
+                        image=ImageTk.PhotoImage(app.splashScreenLogo))
+    canvas.create_text(app.width / 2, app.height / 2 + 20, 
+                       text = "Press P to start!", font = "Arial 26 bold")
+
+def splashScreenMode_keyPressed(app, event):
+    # To play the game
+    if event.key == "p":
+        app.mode = 'gameMode'
+        # Stop splash screen music
+        app.splashScreenMusic.stop()
+        # Only start the song when the music has ended
+        app.gameMusic.start()
+
+
+def splashScreenMode_mousePressed(app, event):
+    return 
+
+def splashScreenMode_timerFired(app):
+    return 42
+
+# ------------------------------------------------------------------------------
+#################################  GAME MODE  ##################################
+# ------------------------------------------------------------------------------
+
+def gameMode_redrawAll(app, canvas):
+    # Can create the image, but it is very slow
+    #canvas.create_image(200, 300, image=ImageTk.PhotoImage(app.image2))
+    drawBackground(app, canvas)
+    drawGround(app, canvas)
+    drawMagicSquare(app, canvas)
+    drawObstacles(app, canvas)
+    if app.gameover:
+        drawGameOver(app, canvas)
+
+def gameMode_keyPressed(app, event):
+    # Jumping
+    if event.key == "Space":
+        # Can only jump if the square is on the ground or on some object
+        if app.isInAir == False:
+            app.magicSquare.jump()
+            app.isInAir = True
+
+def gameMode_mousePressed(app, event):
+    return 
+
+def gameMode_timerFired(app):
     # End the game if there is a collision
     if checkCollision(app) == True: return
     # Calculate the total time that has elapsed since previous obstacle
@@ -212,18 +275,9 @@ def timerFired(app):
     if app.magicSquare.y1 < app.ground[2]:
         app.magicSquare.drop()
 
-def keyPressed(app, event):
-    # Jumping
-    if event.key == "Space":
-        app.magicSquare .jump()
-        #app.magicSquare.land()
+    if app.magicSquare.y1 == app.ground[2]:
+        app.isInAir = False
 
-    # Temporary: We will press "m" to land
-    elif event.key == "m":
-        app.magicSquare.land()
-
-def mousePressed(app, event):
-    return 
 
 def playGeometryDash():
     runApp(width = 700, height = 400)

@@ -26,11 +26,9 @@ import array
 import math
 import wave
 
-import matplotlib.pyplot as plt
 import numpy
 import pywt
 from scipy import signal
-import os
 
 def read_wav(filename):
     # open file, get metadata for audio
@@ -40,7 +38,7 @@ def read_wav(filename):
         print(e)
         return
 
-    # typ = choose_type( wf.getsampwidth() ) # TODO: implement choose_type
+    # typ = choose_type( wf.getsampwidth() ) 
     nsamps = wf.getnframes()
     assert nsamps > 0
 
@@ -85,7 +83,7 @@ def bpm_detector(data, fs):
 
     for loop in range(0, levels):
         cD = []
-        # 1) DWT
+        # 1. Discrete Wavelet Transform using pywt
         if loop == 0:
             [cA, cD] = pywt.dwt(data, "db4")
             cD_minlen = len(cD) / max_decimation + 1
@@ -96,13 +94,11 @@ def bpm_detector(data, fs):
         # 2) Filter
         cD = signal.lfilter([0.01], [1 - 0.99], cD)
 
-        # 4) Subtract out the mean.
-
-        # 5) Decimate for reconstruction later.
+        # 3) Decimate for reconstruction later.
         cD = abs(cD[:: (2 ** (levels - loop - 1))])
         cD = cD - numpy.mean(cD)
 
-        # 6) Recombine the signal before ACF
+        # 4) Recombine the signal before ACF
         #    Essentially, each level the detail coefs (i.e. the HPF values) are concatenated to the beginning of the array
         cD_sum = cD[0 : math.floor(cD_minlen)] + cD_sum
 
@@ -130,10 +126,8 @@ def bpm_detector(data, fs):
     return bpm, correl
 
 # Main function to get the median BPM of the code
-
 def get_bpm(filename):
     parser = argparse.ArgumentParser(description="Process .wav file to determine the Beats Per Minute.")
-    # parser.add_argument("--filename", required=True, help=".wav file for processing")
     parser.add_argument(
         "--window",
         type=float,
@@ -174,11 +168,9 @@ def get_bpm(filename):
         n = n + 1
 
     bpm = numpy.median(bpms)
-    #print("Completed!  Estimated Beats Per Minute:", bpm)
-
-    # n = range(0, len(correl))
-    # plt.plot(n, abs(correl))
-    # plt.show(block=True)
-
     return bpm
 
+# Things to note:
+# 1. bpms: List of the beats_per_minute
+# 2. bpm: Average bpm of the music
+# 3. Eventually, might need to sync the parameters for beat and beat detection
