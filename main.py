@@ -13,6 +13,7 @@ import pygame
 import shapes
 import bpm_detection
 import sound
+import pitch_detection
 
 # ------------------------------------------------------------------------------
 #                               MODEL: appStarted
@@ -49,14 +50,14 @@ def appStarted(app):
     # app.timeDelayedInitialized = False
 
     # Adding additional parameters that we have configured
-    soundParams(app)
-    timerParams(app)
+    soundOptions(app)
+    timerOptions(app)
 
 # Function that contains all the sound parameters
-def soundParams(app):
+def soundOptions(app):
     pygame.mixer.init()
     # Getting the filename of the song
-    app.filename = "Music/Ed Sheeran - Shivers [Official Video].wav"
+    app.filename = "Music/Forever Bound - Stereo Madness.wav"
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.get_bpm(app.filename)
     # Getting the parameters to play song
@@ -68,9 +69,11 @@ def soundParams(app):
     # Period: Defined as the time interval between successive beats
     # For now, I multiply 4 to period for simplicity
     app.period = 4 * 60 / app.bpm
+    # Getting the list of pitches in the music
+    app.pitches = pitch_detection.get_pitch(app.filename)
 
 # Function that contains anything related to timerFired
-def timerParams(app):
+def timerOptions(app):
     app.timerDelay = 20
     app.timeElapsed = 0
     # Getting the startTime so it is easier to compute BPM

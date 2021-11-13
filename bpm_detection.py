@@ -129,6 +129,7 @@ def bpm_detector(data, fs):
     # print(bpm)
     return bpm, correl
 
+# Main function to get the median BPM of the code
 
 def get_bpm(filename):
     parser = argparse.ArgumentParser(description="Process .wav file to determine the Beats Per Minute.")
@@ -143,7 +144,6 @@ def get_bpm(filename):
     args = parser.parse_args()
     samps, fs = read_wav(filename)
     data = []
-    correl = []
     bpm = 0
     n = 0
     nsamps = len(samps)
