@@ -70,6 +70,9 @@ def imageOptions(app):
     # Map pack image and scaled
     app.mapPackImage = app.loadImage("Images/map_packs.png")
     app.mapPackSmallImage = app.scaleImage(app.mapPackImage, 1/2)
+    # Back button
+    app.backButton = app.loadImage("Images/back_button.png")
+    app.backSmallButton = app.scaleImage(app.backButton, 0.1)
 
 # Graphics parameters
 def graphicOptions(app):
@@ -265,6 +268,25 @@ def splashScreenMode_mousePressed(app, event):
         # Only start the song when the music has ended
         app.gameMusic.start()
 
+    # If mouse pressed in the high score button
+    highScoreButtonWidthLeft = (app.width / 2 + 200) - app.highScoreSmallImage.width
+    highScoreButtonWidthRight = (app.width / 2 + 200) + app.highScoreSmallImage.width
+    highScoreButtonHeightLeft = (app.height / 2 + 30) - app.highScoreSmallImage.height
+    highScoreButtonHeightRight = (app.height / 2 + 30) + app.highScoreSmallImage.height
+    if ((highScoreButtonWidthLeft <= cx <= highScoreButtonWidthRight) and 
+        (highScoreButtonHeightLeft <= cy <= highScoreButtonHeightRight)):
+        app.mode = 'highScore'
+
+    # If mouse pressed in the map pack button
+
+    mapPackButtonWidthLeft = (app.width / 2 - 200) - app.mapPackSmallImage.width
+    mapPackButtonWidthRight = (app.width / 2 - 200) + app.mapPackSmallImage.width
+    mapPackButtonHeightLeft = (app.height / 2 + 30) - app.mapPackSmallImage.height
+    mapPackButtonHeightRight = (app.height / 2 + 30) + app.mapPackSmallImage.height
+    if ((mapPackButtonWidthLeft <= cx <= mapPackButtonWidthRight) and 
+        (mapPackButtonHeightLeft <= cy <= mapPackButtonHeightRight)):
+        app.mode = 'mapPack'
+
 def splashScreenMode_timerFired(app):
     return 42
 
@@ -318,8 +340,67 @@ def gameMode_timerFired(app):
 ########################         HIGH SCORE MODE       #########################
 # ------------------------------------------------------------------------------
 
+def drawBackButton(app, canvas):
+    canvas.create_image(30, 30,
+                        image = ImageTk.PhotoImage(app.backSmallButton))
+
+def highScore_redrawAll(app, canvas):
+    # Draw the background
+    canvas.create_image(app.width / 2, app.height / 2, 
+                        image = ImageTk.PhotoImage(app.splashScreenBackground))
+
+    # Create the button
+    drawBackButton(app, canvas)
+
+def highScore_keyPressed(app, event):
+    return
+
+def highScore_mousePressed(app, event):
+    cx = event.x
+    cy = event.y
+    backButtonWidthLeft = 30 - app.backSmallButton.width
+    backButtonWidthRight = 30 + app.backSmallButton.width
+    backButtonHeightLeft = 30 - app.backSmallButton.height
+    backButtonHeightRight = 30 + app.backSmallButton.height
+    if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
+        (backButtonHeightLeft <= cy <= backButtonHeightRight)):
+        app.mode = 'splashScreenMode'
+
+def highScore_timerFired(app):
+    return
+
 # ------------------------------------------------------------------------------
 ########################          MAP PACK MODE        #########################
+# ------------------------------------------------------------------------------
+
+def mapPack_redrawAll(app, canvas):
+    # Draw the background
+    canvas.create_image(app.width / 2, app.height / 2, 
+                        image = ImageTk.PhotoImage(app.splashScreenBackground))
+
+    # Create the button
+    canvas.create_image(30, 30, 
+                        image = ImageTk.PhotoImage(app.backSmallButton))
+
+def mapPack_keyPressed(app, event):
+    return
+
+def mapPack_mousePressed(app, event):
+    cx = event.x
+    cy = event.y
+    backButtonWidthLeft = 30 - app.backSmallButton.width
+    backButtonWidthRight = 30 + app.backSmallButton.width
+    backButtonHeightLeft = 30 - app.backSmallButton.height
+    backButtonHeightRight = 30 + app.backSmallButton.height
+    if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
+        (backButtonHeightLeft <= cy <= backButtonHeightRight)):
+        app.mode = 'splashScreenMode'
+
+def mapPack_timerFired(app):
+    return
+
+# ------------------------------------------------------------------------------
+######################         RUNNING THE CODE        #########################
 # ------------------------------------------------------------------------------
 
 def playGeometryDash():
