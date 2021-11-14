@@ -6,9 +6,9 @@ import os
 import time
 import pygame
 
-# ---------------------------
-# IMPORTING MY OWN LIBRARIES
-# ---------------------------
+# ------------------------------------------------------------------------------
+#                           IMPORTING MY OWN LIBRARIES
+# ------------------------------------------------------------------------------
 
 import shapes
 import bpm_detection
@@ -62,6 +62,14 @@ def imageOptions(app):
     # Creating images for the splash screen
     app.splashScreenBackground = app.loadImage("Images/geometry_dash_background.jpeg")
     app.splashScreenLogo = app.loadImage("Images/geometry-dash-logo.png")
+    app.splashScreenPlayButton = app.loadImage("Images/geometry_dash_play_button.png")
+    app.splashScreenPlaySmallButton = app.scaleImage(app.splashScreenPlayButton, 2/3)
+    # High Scores and scaled
+    app.highScoreImage = app.loadImage("Images/high_scores.png")
+    app.highScoreSmallImage = app.scaleImage(app.highScoreImage, 1/2)
+    # Map pack image and scaled
+    app.mapPackImage = app.loadImage("Images/map_packs.png")
+    app.mapPackSmallImage = app.scaleImage(app.mapPackImage, 1/2)
 
 # Graphics parameters
 def graphicOptions(app):
@@ -72,12 +80,14 @@ def graphicOptions(app):
 # Function that contains all the sound parameters
 def soundOptions(app):
     pygame.mixer.init()
-    # Getting the filename of the song
+    # Getting the filename of splash screen music
+    app.splashScreenMusicFile = "Music/Geometry Dash OST _ Title Screen (Menu Loop).wav"
+    # Getting the filename of the game song
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.get_bpm(app.filename)
     # Creating splash screen music
-    app.splashScreenMusic = sound.Sound("Music/Geometry Dash OST _ Title Screen (Menu Loop).wav")
+    app.splashScreenMusic = sound.Sound(app.splashScreenMusicFile)
     app.splashScreenMusic.start()
     # Getting the parameters to play song when the game starts
     app.gameMusic = sound.Sound(app.filename)
@@ -207,27 +217,53 @@ def checkCollision(app):
 ##########################  SPLASH SCREEN MODE  ################################
 # ------------------------------------------------------------------------------
 
+
 def splashScreenMode_redrawAll(app, canvas):
     # Draw the background
     canvas.create_image(app.width / 2, app.height / 2, 
                         image = ImageTk.PhotoImage(app.splashScreenBackground))
-    canvas.create_image(app.width / 2, app.height / 2 - 50, 
+
+    # Geometry dash logo
+    canvas.create_image(app.width / 2, app.height / 2 - 100, 
                         image=ImageTk.PhotoImage(app.splashScreenLogo))
-    canvas.create_text(app.width / 2, app.height / 2 + 20, 
-                       text = "Press P to start!", font = "Arial 26 bold")
+
+    # Play Button
+    canvas.create_image(app.width / 2, app.height / 2 + 30, 
+                        image=ImageTk.PhotoImage(app.splashScreenPlaySmallButton))
+
+    # High Score
+    canvas.create_image(app.width / 2 + 200, app.height / 2 + 30, 
+                        image=ImageTk.PhotoImage(app.highScoreSmallImage))
+
+    # Map Packs
+    canvas.create_image(app.width / 2 - 200, app.height / 2 + 30, 
+                        image=ImageTk.PhotoImage(app.mapPackSmallImage))
 
 def splashScreenMode_keyPressed(app, event):
-    # To play the game
-    if event.key == "p":
+    return
+
+    # To check high score
+
+    # To add song
+
+
+def splashScreenMode_mousePressed(app, event):
+    # Mouse Pressed
+    cx = event.x
+    cy = event.y
+
+    # If mouse pressed in the play button
+    playButtonWidthLeft = app.width / 2 - app.splashScreenPlaySmallButton.width
+    playButtonWidthRight = app.width / 2 + app.splashScreenPlaySmallButton.width
+    playButtonHeightLeft = (app.height / 2 + 30) - app.splashScreenPlaySmallButton.height
+    playButtonHeightRight = (app.height / 2 + 30) + app.splashScreenPlaySmallButton.height
+    if ((playButtonWidthLeft <= cx <= playButtonWidthRight) and 
+        (playButtonHeightLeft <= cy <= playButtonHeightRight)):
         app.mode = 'gameMode'
         # Stop splash screen music
         app.splashScreenMusic.stop()
         # Only start the song when the music has ended
         app.gameMusic.start()
-
-
-def splashScreenMode_mousePressed(app, event):
-    return 
 
 def splashScreenMode_timerFired(app):
     return 42
@@ -278,6 +314,13 @@ def gameMode_timerFired(app):
     if app.magicSquare.y1 == app.ground[2]:
         app.isInAir = False
 
+# ------------------------------------------------------------------------------
+########################         HIGH SCORE MODE       #########################
+# ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+########################          MAP PACK MODE        #########################
+# ------------------------------------------------------------------------------
 
 def playGeometryDash():
     runApp(width = 700, height = 400)
