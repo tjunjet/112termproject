@@ -317,6 +317,7 @@ def splashScreenMode_mousePressed(app, event):
     highScoreButtonWidthRight = (app.width / 2 + 200) + app.highScoreSmallImage.width
     highScoreButtonHeightLeft = (app.height / 2 + 30) - app.highScoreSmallImage.height
     highScoreButtonHeightRight = (app.height / 2 + 30) + app.highScoreSmallImage.height
+    
     if ((highScoreButtonWidthLeft <= cx <= highScoreButtonWidthRight) and 
         (highScoreButtonHeightLeft <= cy <= highScoreButtonHeightRight)):
         app.mode = 'highScore'
@@ -472,12 +473,15 @@ def gameOverMode_mousePressed(app, event):
     cy = event.y
 
     # Mouse pressed within replay button, go back to gameMode
+    # TODO: There is a bug, the game needs to restart during gameMode.
+
     replayButtonWidthLeft = app.width / 2 - app.smallReplayButton.width
     replayButtonWidthRight = app.width / 2 + app.smallReplayButton.width
     replayButtonHeightLeft = app.height / 2 - app.smallReplayButton.height
     replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
     if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
         (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
+        appStarted(app)
         app.mode = 'gameMode'
     
     # Mouse pressed in return to home button, go back to splash screen
