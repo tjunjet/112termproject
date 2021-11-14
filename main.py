@@ -182,22 +182,6 @@ def drawObstacles(app, canvas):
         elif isinstance(obstacle, shapes.Portal):
             return 
 
-# Drawing the game over sign
-def drawGameOver(app, canvas):
-    # Black background
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
-    # Game Over Image
-    canvas.create_image(app.width / 2, app.height / 2 - 100,
-                        image = ImageTk.PhotoImage(app.smallGameOverImage))
-    # Replay button to restart the game
-    canvas.create_image(app.width / 2, app.height / 2,
-                        image = ImageTk.PhotoImage(app.smallReplayButton))
-    # Return to home button
-    canvas.create_image(app.width / 2, app.height / 2 + 120, 
-                        image = ImageTk.PhotoImage(app.smallHomeButton))
-    # Words in return to home button
-    canvas.create_text(app.width / 2, app.height / 2 + 120, text = "Return to home")
-
 
 # ------------------------------------------------------------------------------
 #                              CONTROLLER FUNCTIONS
@@ -362,8 +346,6 @@ def gameMode_redrawAll(app, canvas):
     drawGround(app, canvas)
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
-    if app.gameover:
-        drawGameOver(app, canvas)
 
 def gameMode_keyPressed(app, event):
     # Jumping
@@ -465,13 +447,47 @@ def mapPack_timerFired(app):
 # ------------------------------------------------------------------------------
 
 def gameOverMode_redrawAll(app, canvas):
-    drawGameOver(app, canvas)
+    # Black background
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+    # Game Over Image
+    canvas.create_image(app.width / 2, app.height / 2 - 100,
+                        image = ImageTk.PhotoImage(app.smallGameOverImage))
+    # Replay button to restart the game
+    canvas.create_image(app.width / 2, app.height / 2,
+                        image = ImageTk.PhotoImage(app.smallReplayButton))
+    # Return to home button
+    canvas.create_image(app.width / 2, app.height / 2 + 120, 
+                        image = ImageTk.PhotoImage(app.smallHomeButton))
+
+    #TODO: Make this better
+    # Words in return to home button
+    canvas.create_text(app.width / 2, app.height / 2 + 120, text = "Return to home")
 
 def gameOverMode_keyPressed(app, event):
     return
 
 def gameOverMode_mousePressed(app, event):
-    return
+    # Location of mousePressed
+    cx = event.x
+    cy = event.y
+
+    # Mouse pressed within replay button, go back to gameMode
+    replayButtonWidthLeft = app.width / 2 - app.smallReplayButton.width
+    replayButtonWidthRight = app.width / 2 + app.smallReplayButton.width
+    replayButtonHeightLeft = app.height / 2 - app.smallReplayButton.height
+    replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
+    if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
+        (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
+        app.mode = 'gameMode'
+    
+    # Mouse pressed in return to home button, go back to splash screen
+    homeButtonWidthLeft = app.width / 2 - app.smallHomeButton.width
+    homeButtonWidthRight = app.width / 2 + app.smallHomeButton.width
+    homeButtonHeightLeft = (app.height / 2 + 120) - app.smallHomeButton.height
+    homeButtonHeightRight = (app.height / 2 + 120) + app.smallHomeButton.height
+    if ((homeButtonWidthLeft <= cx <= homeButtonWidthRight) and 
+        (homeButtonHeightLeft <= cy <= homeButtonHeightRight)):
+        app.mode = 'splashScreenMode'
 
 def gameOverMode_timerFired(app):
     return
