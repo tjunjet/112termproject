@@ -15,6 +15,19 @@ import bpm_detection
 import sound
 import pitch_detection
 
+# Directions
+
+NORTH = (0, -5)
+SOUTH = (0, 5)
+EAST = (5, 0)
+WEST = (-5, 0)
+NORTH_EAST = (5, -5)
+NORTH_WEST = (-5, -5)
+SOUTH_EAST = (5, 5)
+SOUTH_WEST = (-5, 5)
+
+directions = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST]
+
 # ------------------------------------------------------------------------------
 #                               MODEL: appStarted
 # ------------------------------------------------------------------------------
@@ -28,7 +41,7 @@ def appStarted(app):
     app.magicSquare = shapes.magicSquare(30, 30, "green", 
                        app.width / 5 + 10 , app.height * 0.75 - 15)
     app.isInAir = False
-    app.typesOfObstacles = []
+    app.shapes = []
 
     # List of obstacles that the magic square has not passed
     # Once the magic square clears the obstacle, we will remove the obstacle
@@ -73,12 +86,25 @@ def imageOptions(app):
     # Back button
     app.backButton = app.loadImage("Images/back_button.png")
     app.backSmallButton = app.scaleImage(app.backButton, 0.1)
+    # Game over image
+    app.gameOverImage = app.loadImage("Images/game_over.png")
+    app.smallGameOverImage = app.scaleImage(app.gameOverImage, 0.1)
+    # Replay button image
+    app.replayButton = app.loadImage("Images/replay_button.png")
+    app.smallReplayButton = app.scaleImage(app.replayButton, 0.5)
+    # Return to home button
+    app.returnToHomeButton = app.loadImage("Images/homeButton.png")
+    app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
+
 
 # Graphics parameters
 def graphicOptions(app):
     # Using a cool background image
     app.image1 = app.loadImage('background-min.jpeg')
     app.image2 = app.scaleImage(app.image1, 2/3)
+
+    # Creating the shapes for the splash mode
+    app.splashShapeList = []
 
 # Function that contains all the sound parameters
 def soundOptions(app):
@@ -158,9 +184,19 @@ def drawObstacles(app, canvas):
 
 # Drawing the game over sign
 def drawGameOver(app, canvas):
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "red")
-    canvas.create_text(app.width / 2, app.height / 2, text="Game Over!",
-                       fill="black", font="Helvetica 26 bold underline")
+    # Black background
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+    # Game Over Image
+    canvas.create_image(app.width / 2, app.height / 2 - 100,
+                        image = ImageTk.PhotoImage(app.smallGameOverImage))
+    # Replay button to restart the game
+    canvas.create_image(app.width / 2, app.height / 2,
+                        image = ImageTk.PhotoImage(app.smallReplayButton))
+    # Return to home button
+    canvas.create_image(app.width / 2, app.height / 2 + 120, 
+                        image = ImageTk.PhotoImage(app.smallHomeButton))
+    # Words in return to home button
+    canvas.create_text(app.width / 2, app.height / 2 + 120, text = "Return to home")
 
 
 # ------------------------------------------------------------------------------
@@ -213,6 +249,7 @@ def checkCollision(app):
             (app.magicSquare.y1 == obstacle.y0) and 
             passedObstacle(app, obstacle) == False):
             app.gameover = True
+            app.mode = "gameOverMode"
             return True
     return False
 
@@ -220,11 +257,33 @@ def checkCollision(app):
 ##########################  SPLASH SCREEN MODE  ################################
 # ------------------------------------------------------------------------------
 
+# Creating random shape
+def addShape(app):
+    randomX = random.randint(0, app.width // 2)
+    randomY = random.randint(0, app.height // 2)
+    randomDirection = random.choice(directions)
+    app.shapes.append([randomX, randomY, randomDirection])
+
+# Creating a function to move shape
+def moveShape(app):
+    for shape in app.shapes:
+        (drow, dcol) = shape[2]
+        shape[0] += drow
+        shape[1] += dcol
 
 def splashScreenMode_redrawAll(app, canvas):
     # Draw the background
     canvas.create_image(app.width / 2, app.height / 2, 
                         image = ImageTk.PhotoImage(app.splashScreenBackground))
+
+    # Draw through the list of squares
+    for shape in app.shapes:
+        colors = ["red", "green", "blue", "yellow", "pink"]
+        randomColor = random.choice(colors)
+        cx, cy = shape[0], shape[1]
+        canvas.create_rectangle(cx - 20, cy - 20, 
+                                cx + 20, cy + 20, 
+                                fill = randomColor, width = 3)
 
     # Geometry dash logo
     canvas.create_image(app.width / 2, app.height / 2 - 100, 
@@ -241,6 +300,7 @@ def splashScreenMode_redrawAll(app, canvas):
     # Map Packs
     canvas.create_image(app.width / 2 - 200, app.height / 2 + 30, 
                         image=ImageTk.PhotoImage(app.mapPackSmallImage))
+
 
 def splashScreenMode_keyPressed(app, event):
     return
@@ -288,8 +348,9 @@ def splashScreenMode_mousePressed(app, event):
         app.mode = 'mapPack'
 
 def splashScreenMode_timerFired(app):
-    return 42
-
+    addShape(app)
+    moveShape(app)
+    app.timeElapsed += app.timerDelay
 # ------------------------------------------------------------------------------
 #################################  GAME MODE  ##################################
 # ------------------------------------------------------------------------------
@@ -397,6 +458,38 @@ def mapPack_mousePressed(app, event):
         app.mode = 'splashScreenMode'
 
 def mapPack_timerFired(app):
+    return
+
+# ------------------------------------------------------------------------------
+##############################  GAME OVER MODE  ################################
+# ------------------------------------------------------------------------------
+
+def gameOverMode_redrawAll(app, canvas):
+    drawGameOver(app, canvas)
+
+def gameOverMode_keyPressed(app, event):
+    return
+
+def gameOverMode_mousePressed(app, event):
+    return
+
+def gameOverMode_timerFired(app):
+    return
+
+# ------------------------------------------------------------------------------
+#################################  PAUSE MODE  #################################
+# ------------------------------------------------------------------------------
+
+def pauseMode_redrawAll(app, canvas):
+    return
+
+def pauseMode_keyPressed(app, event):
+    return
+
+def pauseMode_mousePressed(app, event):
+    return
+
+def pauseMode_timerFired(app):
     return
 
 # ------------------------------------------------------------------------------
