@@ -97,6 +97,7 @@ def imageOptions(app):
     app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
 
 
+
 # Graphics parameters
 def graphicOptions(app):
     # Using a cool background image
@@ -289,21 +290,17 @@ def splashScreenMode_redrawAll(app, canvas):
 def splashScreenMode_keyPressed(app, event):
     return
 
-    # To check high score
-
-    # To add song
-
-
 def splashScreenMode_mousePressed(app, event):
     # Mouse Pressed
     cx = event.x
     cy = event.y
 
     # If mouse pressed in the play button
-    playButtonWidthLeft = app.width / 2 - app.splashScreenPlaySmallButton.width
-    playButtonWidthRight = app.width / 2 + app.splashScreenPlaySmallButton.width
-    playButtonHeightLeft = (app.height / 2 + 30) - app.splashScreenPlaySmallButton.height
-    playButtonHeightRight = (app.height / 2 + 30) + app.splashScreenPlaySmallButton.height
+    playButtonWidth, playButtonheight = app.splashScreenPlaySmallButton.size
+    playButtonWidthLeft = app.width / 2 - playButtonWidth
+    playButtonWidthRight = app.width / 2 + playButtonWidth
+    playButtonHeightLeft = (app.height / 2 + 30) - playButtonheight
+    playButtonHeightRight = (app.height / 2 + 30) + playButtonheight
     if ((playButtonWidthLeft <= cx <= playButtonWidthRight) and 
         (playButtonHeightLeft <= cy <= playButtonHeightRight)):
         app.mode = 'gameMode'
@@ -313,10 +310,11 @@ def splashScreenMode_mousePressed(app, event):
         app.gameMusic.start()
 
     # If mouse pressed in the high score button
-    highScoreButtonWidthLeft = (app.width / 2 + 200) - app.highScoreSmallImage.width
-    highScoreButtonWidthRight = (app.width / 2 + 200) + app.highScoreSmallImage.width
-    highScoreButtonHeightLeft = (app.height / 2 + 30) - app.highScoreSmallImage.height
-    highScoreButtonHeightRight = (app.height / 2 + 30) + app.highScoreSmallImage.height
+    highScoreButtonWidth, highScoreButtonheight = app.highScoreSmallImage.size
+    highScoreButtonWidthLeft = (app.width / 2 + 200) - highScoreButtonWidth
+    highScoreButtonWidthRight = (app.width / 2 + 200) + highScoreButtonWidth
+    highScoreButtonHeightLeft = (app.height / 2 + 30) - highScoreButtonheight
+    highScoreButtonHeightRight = (app.height / 2 + 30) + highScoreButtonheight
     
     if ((highScoreButtonWidthLeft <= cx <= highScoreButtonWidthRight) and 
         (highScoreButtonHeightLeft <= cy <= highScoreButtonHeightRight)):
@@ -324,17 +322,19 @@ def splashScreenMode_mousePressed(app, event):
 
     # If mouse pressed in the map pack button
 
-    mapPackButtonWidthLeft = (app.width / 2 - 200) - app.mapPackSmallImage.width
-    mapPackButtonWidthRight = (app.width / 2 - 200) + app.mapPackSmallImage.width
-    mapPackButtonHeightLeft = (app.height / 2 + 30) - app.mapPackSmallImage.height
-    mapPackButtonHeightRight = (app.height / 2 + 30) + app.mapPackSmallImage.height
+    mapPackButtonWidth, mapPackButtonheight = app.mapPackSmallImage.size
+    mapPackButtonWidthLeft = (app.width / 2 - 200) - mapPackButtonWidth
+    mapPackButtonWidthRight = (app.width / 2 - 200) + mapPackButtonWidth
+    mapPackButtonHeightLeft = (app.height / 2 + 30) - mapPackButtonheight
+    mapPackButtonHeightRight = (app.height / 2 + 30) + mapPackButtonheight
     if ((mapPackButtonWidthLeft <= cx <= mapPackButtonWidthRight) and 
         (mapPackButtonHeightLeft <= cy <= mapPackButtonHeightRight)):
         app.mode = 'mapPack'
 
 def splashScreenMode_timerFired(app):
-    addShape(app)
-    moveShape(app)
+    # if app.timeElapsed / app.timeDelay == 10:
+    #     addShape(app)
+    # moveShape(app)
     app.timeElapsed += app.timerDelay
 # ------------------------------------------------------------------------------
 #################################  GAME MODE  ##################################
@@ -481,8 +481,9 @@ def gameOverMode_mousePressed(app, event):
     replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
     if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
         (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
-        appStarted(app)
         app.mode = 'gameMode'
+        appStarted(app)
+        app.gameMusic.start()
     
     # Mouse pressed in return to home button, go back to splash screen
     homeButtonWidthLeft = app.width / 2 - app.smallHomeButton.width
@@ -491,7 +492,9 @@ def gameOverMode_mousePressed(app, event):
     homeButtonHeightRight = (app.height / 2 + 120) + app.smallHomeButton.height
     if ((homeButtonWidthLeft <= cx <= homeButtonWidthRight) and 
         (homeButtonHeightLeft <= cy <= homeButtonHeightRight)):
+        app.gameMusic.stop()
         app.mode = 'splashScreenMode'
+        app.splashScreenMusic.start()
 
 def gameOverMode_timerFired(app):
     return
@@ -501,6 +504,7 @@ def gameOverMode_timerFired(app):
 # ------------------------------------------------------------------------------
 
 def pauseMode_redrawAll(app, canvas):
+    # Drawing the pause button
     return
 
 def pauseMode_keyPressed(app, event):
