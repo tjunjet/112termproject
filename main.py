@@ -295,6 +295,12 @@ def checkCollision(app):
                   app.isOnSquare = True
                   return False
 
+            # If magic square is no longer on square
+            elif (app.isOnSquare == True and 
+                  app.magicSquare.x0 > obstacle.x1):
+                  app.isOnSquare == False
+
+            # If there is a head on collision between square and magicSquare
             elif ((app.magicSquare.x1 > obstacle.x0) and
                 (app.magicSquare.y1 > obstacle.y0)):
                 app.gameover = True
@@ -449,8 +455,7 @@ def gameMode_timerFired(app):
 
     #Checking if the magicSquare is on the square
     if app.isOnSquare == True:
-        app.magicSquare.y0 -= 30
-        app.magicSquare.y1 -= 30
+        app.magicSquare.centerY = app.height * 0.75 + 15
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
