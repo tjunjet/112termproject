@@ -333,8 +333,8 @@ def checkCollision(app):
                   app.isOnSquare = False
 
             # If there is a head on collision between square and magicSquare
-            elif ((app.magicSquare.x1 > obstacle.x0) and
-                (app.magicSquare.y1 > obstacle.y0) and
+            elif ((app.magicSquare.x1 >= obstacle.x0) and
+                (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
                 passedObstacle(app, obstacle) == False):
                 app.gameover = True
                 app.mode = "gameOverMode"
