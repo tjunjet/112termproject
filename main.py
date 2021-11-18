@@ -446,7 +446,7 @@ def gameMode_keyPressed(app, event):
         if app.isInAir == False:
             app.magicSquare.jump()
             app.isInAir = True
-            #app.isOnSquare = False
+            app.isOnSquare = False
 
 def gameMode_mousePressed(app, event):
     return 
@@ -468,17 +468,13 @@ def gameMode_timerFired(app):
 
     # Periodic dropping of the square if the square is above the ground.
     # Only drop when not sitting on the square
-    if app.ground[2] - 1 <= app.magicSquare.y1 <= app.ground[2] + 1:
+    if app.magicSquare.y1 == app.ground[2]:
         app.isInAir = False
 
     # Drop when no longer sitting on the square
     if app.isInAir == True and app.isOnSquare == False:
         if app.magicSquare.y1 != app.ground[2]:
             app.magicSquare.drop()
-
-    #Checking if the magicSquare is on the square
-    if app.isOnSquare == True:
-        app.magicSquare.centerY = app.height * 0.75 + 15
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
