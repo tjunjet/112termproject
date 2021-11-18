@@ -443,7 +443,7 @@ def gameMode_keyPressed(app, event):
     # Jumping
     if event.key == "Space":
         # Can only jump if the square is on the ground or on some object
-        if app.isInAir == False:
+        if app.isInAir == False or app.isOnSquare == True:
             app.magicSquare.jump()
             app.isInAir = True
             app.isOnSquare = False
