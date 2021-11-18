@@ -248,7 +248,14 @@ def addObstacle(app):
 # 2. 
 
 def passedObstacle(app, obstacle):
-    if ((app.magicSquare.x0 > obstacle.x1)): return True
+    # Passed Triangle
+    if isinstance(obstacle, shapes.Triangle):
+        if ((app.magicSquare.x0 > obstacle.x1)): return True
+
+    # Passed Rectangle
+    elif isinstance(obstacle, shapes.Square):
+        if (app.magicSquare.x1 > obstacle.x0): return True
+
     return False
 
 # Function to remove obstacles once the obstacle goes out of range
@@ -297,15 +304,16 @@ def checkCollision(app):
 
             # If magic square is no longer on square
             elif (app.isOnSquare == True and 
-                  app.magicSquare.x0 > obstacle.x1):
-                  app.isOnSquare == False
-
+                  app.magicSquare.x0 >= obstacle.x1):
+                  return
             # If there is a head on collision between square and magicSquare
             elif ((app.magicSquare.x1 > obstacle.x0) and
-                (app.magicSquare.y1 > obstacle.y0)):
+                (app.magicSquare.y1 > obstacle.y0) and
+                passedObstacle(app, obstacle) == False):
                 app.gameover = True
                 app.mode = "gameOverMode"
                 return True
+
     return False
 
 # ------------------------------------------------------------------------------
@@ -422,9 +430,10 @@ def gameMode_keyPressed(app, event):
     # Jumping
     if event.key == "Space":
         # Can only jump if the square is on the ground or on some object
-        if app.isInAir == False:
+        if app.isInAir == False or app.isOnSquare == True:
             app.magicSquare.jump()
             app.isInAir = True
+            app.isOnSquare = False
 
 def gameMode_mousePressed(app, event):
     return 
@@ -447,7 +456,7 @@ def gameMode_timerFired(app):
     # Periodic dropping of the square if the square is above the ground.
     # Only drop when not sitting on the square
     if app.isOnSquare == False:
-        if app.magicSquare.y1 < app.ground[2]:
+        if app.isInAir == True:
             app.magicSquare.drop()
 
     if app.magicSquare.y1 == app.ground[2]:
@@ -455,6 +464,7 @@ def gameMode_timerFired(app):
 
     #Checking if the magicSquare is on the square
     if app.isOnSquare == True:
+        app.isInAir = True
         app.magicSquare.centerY = app.height * 0.75 + 15
 
     # Changing the background color as time goes by
