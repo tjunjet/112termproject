@@ -79,7 +79,7 @@ def appStarted(app):
 # Drawing imageOptions
 def imageOptions(app):
     # Creating images for the splash screen
-    # https://gdbrowser.com/
+    # From: https://gdbrowser.com/
     app.splashScreenBackground = app.loadImage("Images/geometry_dash_background.jpeg")
     app.splashScreenLogo = app.loadImage("Images/geometry-dash-logo.png")
     # Play Button
@@ -118,8 +118,8 @@ def obstacleOptions(app):
 def graphicOptions(app):
     # Using a cool background image
     # From: https://gdbrowser.com/
-    app.image1 = app.loadImage('background-min.jpeg')
-    app.image2 = app.scaleImage(app.image1, 2/3)
+    # app.image1 = app.loadImage('background-min.jpeg')
+    # app.image2 = app.scaleImage(app.image1, 2/3)
 
     # Creating the shapes for the splash mode
     app.splashShapeList = []
