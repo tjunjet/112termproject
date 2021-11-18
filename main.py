@@ -14,6 +14,7 @@ import shapes
 import bpm_detection
 import sound
 import pitch_detection
+import audio_length
 
 # Directions
 
@@ -73,6 +74,7 @@ def appStarted(app):
     graphicOptions(app)
     imageOptions(app)
     obstacleOptions(app)
+    scoreOptions(app)
 
 # Drawing imageOptions
 def imageOptions(app):
@@ -150,6 +152,8 @@ def soundOptions(app):
     app.period = 4 * 60 / app.bpm
     # Getting the list of pitches in the music
     app.pitches = pitch_detection.get_pitch(app.filename)
+    # Getting the duration of the music
+    app.duration = audio_length.getDurationOfMusic(app.filename)
 
 # Function that contains anything related to timerFired
 def timerOptions(app):
@@ -157,6 +161,11 @@ def timerOptions(app):
     app.timeElapsed = 0
     # Getting the startTime so it is easier to compute BPM
     app.startTime = time.time()
+    app.realStartTime = time.time()
+
+# Function that contains anything related to scoring
+def scoreOptions(app):
+    app.score = 0
 
 # ------------------------------------------------------------------------------
 #                               PROCESSING MUSIC
@@ -185,7 +194,11 @@ def changeBackgroundColorGradually(app):
         else:
             app.backgroundColor[0] -= 1
 
+# Drawing the percentage score
+def drawScore(app, canvas):
+    canvas.create_text(app.width / 2, 30, text = f"Score: {app.score} %", font = "Arial 26 bold")
 
+# Drawing the background
 def drawBackground(app, canvas):
     color = rgbString(app.backgroundColor[0], app.backgroundColor[1], app.backgroundColor[2])
     canvas.create_rectangle(0, 0, app.width, app.height, fill = color)
@@ -426,7 +439,8 @@ def splashScreenMode_timerFired(app):
     # if app.timeElapsed / app.timeDelay == 10:
     #     addShape(app)
     # moveShape(app)
-    app.timeElapsed += app.timerDelay
+    #app.timeElapsed += app.timerDelay
+    return
 # ------------------------------------------------------------------------------
 #################################  GAME MODE  ##################################
 # ------------------------------------------------------------------------------
@@ -438,6 +452,7 @@ def gameMode_redrawAll(app, canvas):
     drawGround(app, canvas)
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
+    drawScore(app, canvas)
 
 def gameMode_keyPressed(app, event):
     # Jumping
@@ -456,8 +471,12 @@ def gameMode_timerFired(app):
     if checkCollision(app) == True: return
     # Calculate the total time that has elapsed since previous obstacle
     newTime = time.time()
-    timePassed = newTime - app.startTime
-    if timePassed > app.period:
+    # Temporary time passed variable for period calculation
+    tempTimePassed = newTime - app.startTime
+    # Actual time passed
+    app.timeElapsed = newTime - app.realStartTime
+    app.score = int(app.timeElapsed / app.duration * 100)
+    if tempTimePassed > app.period:
         addObstacle(app)
         app.startTime = newTime
     
