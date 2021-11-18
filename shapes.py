@@ -64,12 +64,14 @@ class magicSquare(object):
 
 # Obstacles
 class Square(object):
-    def __init__(self, width, height, color):
-        self.width = width
-        self.height = height
+    def __init__(self, x0, y0, x1, y1, color):
+        self.x0 = x0
+        self.x1 = x1
+        self.y0 = y0
+        self.y1 = y1
         self.color = color
 
-    
+# Triangle 
 class Triangle(object):
     def __init__(self, x0, y0, x1, y1, x2, y2, color, height):
         self.x0 = x0

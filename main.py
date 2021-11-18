@@ -64,11 +64,15 @@ def appStarted(app):
     # Changes to true the moment the delay has ended.
     # app.timeDelayedInitialized = False
 
+    # Checking if the magicSquare is on a square
+    app.isOnSquare = False
+
     # Adding additional parameters that we have configured
     soundOptions(app)
     timerOptions(app)
     graphicOptions(app)
     imageOptions(app)
+    obstacleOptions(app)
 
 # Drawing imageOptions
 def imageOptions(app):
@@ -96,7 +100,8 @@ def imageOptions(app):
     app.returnToHomeButton = app.loadImage("Images/homeButton.png")
     app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
 
-
+def obstacleOptions(app):
+    return
 
 # Graphics parameters
 def graphicOptions(app):
@@ -106,6 +111,10 @@ def graphicOptions(app):
 
     # Creating the shapes for the splash mode
     app.splashShapeList = []
+
+    # Generating background color
+    app.backgroundColor = [0, 0, 255]
+    app.isIncreasing = True
 
 # Function that contains all the sound parameters
 def soundOptions(app):
@@ -144,8 +153,30 @@ def timerOptions(app):
 # ------------------------------------------------------------------------------
 #                            VIEW: DRAWING FUNCTIONS
 # ------------------------------------------------------------------------------
+
+# Getting random color
+def rgbString(r, g, b):
+    # Don't worry about the :02x part, but for the curious,
+    # it says to use hex (base 16) with two digits.
+    return f'#{r:02x}{g:02x}{b:02x}'
+
+# Changing the background color gradually
+def changeBackgroundColorGradually(app):
+    if app.isIncreasing == True:
+        if app.backgroundColor[0] == 255:
+            app.isIncreasing = False
+        else:
+            app.backgroundColor[0] += 1
+    else:
+        if app.backgroundColor[0] == 0:
+            app.isIncreasing = True
+        else:
+            app.backgroundColor[0] -= 1
+
+
 def drawBackground(app, canvas):
-    canvas.create_rectangle(0, 0, app.width, app.height, fill = "blue")
+    color = rgbString(app.backgroundColor[0], app.backgroundColor[1], app.backgroundColor[2])
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = color)
 
 # Drawing the magic square
 def drawMagicSquare(app, canvas):
@@ -159,7 +190,11 @@ def drawMagicSquare(app, canvas):
 def drawTriangle(app, canvas, x0, y0, x1, y1, x2, y2, color):
     canvas.create_polygon(x0, y0, x1, y1, x2, y2, fill = color, width = "10")
 
+# Drawing the square obstacle
+def drawSquare(app, canvas, x0, y0, x1, y1, color):
+    canvas.create_rectangle(x0, y0, x1, y1, fill = color, width = "3")
 # Drawing the ground. This does not change throughout the game for now.
+
 def drawGround(app, canvas):
     x0, x1, y0, y1 = app.ground
     canvas.create_line(x0, y0, x1, y1, fill = "black", width = "10")
@@ -177,7 +212,9 @@ def drawObstacles(app, canvas):
 
         # If it is a square, we draw a rectangle
         elif isinstance(obstacle, shapes.Square):
-            return
+            drawSquare(app, canvas, 
+                       obstacle.x0, obstacle.y0,
+                       obstacle.x1, obstacle.y1, "purple")
 
         # If it is a portal, we draw circle
         elif isinstance(obstacle, shapes.Portal):
@@ -191,15 +228,19 @@ def drawObstacles(app, canvas):
 # Function to add obstacles randomly based on the BPM
 
 def addObstacle(app):
-    #obstacleID = random.randint(1, 2)
-    obstacleID = 1
+    obstacleID = random.randint(1, 2)
     # Create obstacle if obstacleID == 1
     if obstacleID == 1:
         triangle = shapes.Triangle(app.width - 20, app.height * 0.75, 
-                                   app.width - 10, app.height * 0.75 - 30,
+                                   app.width - 10, app.height * 0.75 - 25,
                                    app.width, app.height * 0.75, "orange", 
                                    app.height * 0.75 - 30)
         app.obstacles.append(triangle)
+
+    elif obstacleID == 2:
+        square = shapes.Square(app.width - 30, app.height * 0.75 - 30,
+                        app.width, app.height * 0.75, "purple")
+        app.obstacles.append(square)
 
 # Function to check if obstacles have been passed by magic square
 # Must check the following conditions: 
@@ -225,17 +266,40 @@ def takeStep(app):
             obstacle.x1 -= 5
             obstacle.x2 -= 5
 
+        elif isinstance(obstacle, shapes.Square):
+            obstacle.x0 -= 5
+            obstacle.x1 -= 5
+
 # Must debug this!
 def checkCollision(app):
     # Collision happens when x1 of the magicSquare > x0 of the obstacle
     # If the object has passed the obstacle, it is not counted
     for obstacle in app.obstacles:
-        if ((app.magicSquare.x1 >= obstacle.x0) and 
-            (app.magicSquare.y1 == obstacle.y0) and 
-            passedObstacle(app, obstacle) == False):
-            app.gameover = True
-            app.mode = "gameOverMode"
-            return True
+        # If it is a triangle
+        if isinstance(obstacle, shapes.Triangle):
+            if ((app.magicSquare.x1 >= obstacle.x0) and 
+                (obstacle.y1 <= app.magicSquare.y1 <= obstacle.y0) and 
+                passedObstacle(app, obstacle) == False):
+                app.gameover = True
+                app.mode = "gameOverMode"
+                return True
+        
+        # If is a square
+        elif isinstance(obstacle, shapes.Square):
+            # If the magic square did not manage to make it past the square obstacle
+
+            # If the magic square is on top of the square obstacle, it stays there.
+            if ((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
+                  (app.magicSquare.y1 == obstacle.y0)):
+                  # Change the variable:
+                  app.isOnSquare = True
+                  return False
+
+            elif ((app.magicSquare.x1 > obstacle.x0) and
+                (app.magicSquare.y1 > obstacle.y0)):
+                app.gameover = True
+                app.mode = "gameOverMode"
+                return True
     return False
 
 # ------------------------------------------------------------------------------
@@ -371,14 +435,26 @@ def gameMode_timerFired(app):
     
     # Move the entire map based on timerFired
     takeStep(app)
+    # Check if any obstacles should be removed from the list of obstacles.
     removeObstacle(app)
 
-    # Periodic dropping of the square if the square is above the ground
-    if app.magicSquare.y1 < app.ground[2]:
-        app.magicSquare.drop()
+    # Periodic dropping of the square if the square is above the ground.
+    # Only drop when not sitting on the square
+    if app.isOnSquare == False:
+        if app.magicSquare.y1 < app.ground[2]:
+            app.magicSquare.drop()
 
     if app.magicSquare.y1 == app.ground[2]:
         app.isInAir = False
+
+    #Checking if the magicSquare is on the square
+    if app.isOnSquare == True:
+        app.magicSquare.y0 -= 30
+        app.magicSquare.y1 -= 30
+
+    # Changing the background color as time goes by
+    changeBackgroundColorGradually(app)
+
 
 # ------------------------------------------------------------------------------
 ########################         HIGH SCORE MODE       #########################
