@@ -77,26 +77,35 @@ def appStarted(app):
 # Drawing imageOptions
 def imageOptions(app):
     # Creating images for the splash screen
+    # https://gdbrowser.com/
     app.splashScreenBackground = app.loadImage("Images/geometry_dash_background.jpeg")
     app.splashScreenLogo = app.loadImage("Images/geometry-dash-logo.png")
+    # Play Button
+    # From: https://picsart.com/i/295292011008211
     app.splashScreenPlayButton = app.loadImage("Images/geometry_dash_play_button.png")
     app.splashScreenPlaySmallButton = app.scaleImage(app.splashScreenPlayButton, 2/3)
     # High Scores and scaled
+    # https://gdbrowser.com/
     app.highScoreImage = app.loadImage("Images/high_scores.png")
     app.highScoreSmallImage = app.scaleImage(app.highScoreImage, 1/2)
     # Map pack image and scaled
+    # https://gdbrowser.com/
     app.mapPackImage = app.loadImage("Images/map_packs.png")
     app.mapPackSmallImage = app.scaleImage(app.mapPackImage, 1/2)
     # Back button
+    # From: https://www.iconfinder.com/icons/2454800/arrow_direction_go_back_send_button_icon
     app.backButton = app.loadImage("Images/back_button.png")
     app.backSmallButton = app.scaleImage(app.backButton, 0.1)
     # Game over image
+    # From: https://coolwallpapers.me/2605119-minimalism.html
     app.gameOverImage = app.loadImage("Images/game_over.png")
     app.smallGameOverImage = app.scaleImage(app.gameOverImage, 0.1)
     # Replay button image
+    # From: https://cutewallpaper.org/21/geometry-dash-pic/view-page-21.html
     app.replayButton = app.loadImage("Images/replay_button.png")
     app.smallReplayButton = app.scaleImage(app.replayButton, 0.5)
     # Return to home button
+    # From: https://twitter.com/therealgdcolon/status/1362503200713166849
     app.returnToHomeButton = app.loadImage("Images/homeButton.png")
     app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
 
@@ -106,6 +115,7 @@ def obstacleOptions(app):
 # Graphics parameters
 def graphicOptions(app):
     # Using a cool background image
+    # From: https://gdbrowser.com/
     app.image1 = app.loadImage('background-min.jpeg')
     app.image2 = app.scaleImage(app.image1, 2/3)
 
@@ -120,8 +130,10 @@ def graphicOptions(app):
 def soundOptions(app):
     pygame.mixer.init()
     # Getting the filename of splash screen music
+    # https://www.youtube.com/watch?v=qG3wCA4L7Aw
     app.splashScreenMusicFile = "Music/Geometry Dash OST _ Title Screen (Menu Loop).wav"
     # Getting the filename of the game song
+    # https://www.youtube.com/watch?v=JhKyKEDxo8Q
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.get_bpm(app.filename)
@@ -305,7 +317,8 @@ def checkCollision(app):
             # If magic square is no longer on square
             elif (app.isOnSquare == True and 
                   app.magicSquare.x0 >= obstacle.x1):
-                  return
+                  app.isOnSquare = False
+
             # If there is a head on collision between square and magicSquare
             elif ((app.magicSquare.x1 > obstacle.x0) and
                 (app.magicSquare.y1 > obstacle.y0) and
@@ -430,10 +443,10 @@ def gameMode_keyPressed(app, event):
     # Jumping
     if event.key == "Space":
         # Can only jump if the square is on the ground or on some object
-        if app.isInAir == False or app.isOnSquare == True:
+        if app.isInAir == False:
             app.magicSquare.jump()
             app.isInAir = True
-            app.isOnSquare = False
+            #app.isOnSquare = False
 
 def gameMode_mousePressed(app, event):
     return 
@@ -455,16 +468,16 @@ def gameMode_timerFired(app):
 
     # Periodic dropping of the square if the square is above the ground.
     # Only drop when not sitting on the square
-    if app.isOnSquare == False:
-        if app.isInAir == True:
-            app.magicSquare.drop()
-
-    if app.magicSquare.y1 == app.ground[2]:
+    if app.ground[2] - 1 <= app.magicSquare.y1 <= app.ground[2] + 1:
         app.isInAir = False
+
+    # Drop when no longer sitting on the square
+    if app.isInAir == True and app.isOnSquare == False:
+        if app.magicSquare.y1 != app.ground[2]:
+            app.magicSquare.drop()
 
     #Checking if the magicSquare is on the square
     if app.isOnSquare == True:
-        app.isInAir = True
         app.magicSquare.centerY = app.height * 0.75 + 15
 
     # Changing the background color as time goes by
