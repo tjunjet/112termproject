@@ -3,6 +3,7 @@
 import wave
 import contextlib
 
+# This function gets the duration of the music in seconds
 def getDurationOfMusic(filename):
     with contextlib.closing(wave.open(filename, "r")) as f:
         frames = f.getnframes()
