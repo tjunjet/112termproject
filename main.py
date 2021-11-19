@@ -125,6 +125,7 @@ def graphicOptions(app):
     app.splashShapeList = []
 
     # Generating background color
+    # Note that this color changes every time the mode changes
     app.backgroundColor = [0, 0, 255]
     app.isIncreasing = True
 
@@ -187,6 +188,7 @@ def rgbString(r, g, b):
 
 # Changing the background color gradually
 def changeBackgroundColorGradually(app):
+    # Changing the gameMode's color
     if app.isIncreasing == True:
         if app.backgroundColor[0] == 255:
             app.isIncreasing = False
@@ -197,6 +199,7 @@ def changeBackgroundColorGradually(app):
             app.isIncreasing = True
         else:
             app.backgroundColor[0] -= 1
+
 
 # Drawing the percentage score
 def drawScore(app, canvas):
@@ -411,6 +414,10 @@ def checkCollision(app):
             if ((portalLeftX <= app.magicSquare.centerX <= portalRightX) and
                  portalTopY <= app.magicSquare.centerY <= portalBottomY):
                  app.mode = "reverseGravityMode"
+                 # Remove the portal
+                 app.obstacles.pop()
+                 # Change background color
+                 app.backgroundColor = [255, 0, 0]
         
         elif isinstance(obstacle, shapes.Rectangle):
             # Check if the rectangle collides with the magicSquare
@@ -565,7 +572,12 @@ def gameMode_timerFired(app):
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
     if tempTimePassed > app.period:
-        addObstacle(app)
+        if app.obstacles == []: 
+            addObstacle(app)
+
+        elif not isinstance(app.obstacles[-1], shapes.Portal):
+            addObstacle(app)
+        
         app.startTime = newTime
     
     # Move the entire map based on timerFired
@@ -641,7 +653,12 @@ def reverseGravityMode_timerFired(app):
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
     if tempTimePassed > app.period / 2:
-        addObstacle(app)
+        if app.obstacles == []: 
+            addObstacle(app)
+
+        elif not isinstance(app.obstacles[-1], shapes.Portal):
+            addObstacle(app)
+
         app.startTime = newTime
     
     # Move the entire map based on timerFired
