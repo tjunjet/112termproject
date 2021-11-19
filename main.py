@@ -39,6 +39,7 @@ def appStarted(app):
     app.height = 400
     app.width = 700
     app.ground = (0, app.width, app.height * 0.75, app.height * 0.75)
+    app.ceiling = (0, app.width, app.height * 0.25, app.height * 0.25)
     app.magicSquare = shapes.magicSquare(30, 30, "green", 
                        app.width / 5 + 10 , app.height * 0.75 - 15)
     app.isInAir = False
@@ -110,17 +111,16 @@ def imageOptions(app):
     # From: https://twitter.com/therealgdcolon/status/1362503200713166849
     app.returnToHomeButton = app.loadImage("Images/homeButton.png")
     app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
+    # Portal Image
+    # From: https://geometry-dash.fandom.com/wiki/Portals
+    app.portalImage = app.loadImage("Images/portal.png")
+    app.smallPortalImage = app.scaleImage(app.portalImage, 0.25)
 
 def obstacleOptions(app):
     return
 
 # Graphics parameters
 def graphicOptions(app):
-    # Using a cool background image
-    # From: https://gdbrowser.com/
-    # app.image1 = app.loadImage('background-min.jpeg')
-    # app.image2 = app.scaleImage(app.image1, 2/3)
-
     # Creating the shapes for the splash mode
     app.splashShapeList = []
 
@@ -160,8 +160,8 @@ def timerOptions(app):
     app.timerDelay = 20
     app.timeElapsed = 0
     # Getting the startTime so it is easier to compute BPM
-    app.startTime = time.time()
-    app.realStartTime = time.time()
+    app.startTime = 0
+    app.realStartTime = 0
 
 # Function that contains anything related to scoring
 def scoreOptions(app):
@@ -174,6 +174,10 @@ def scoreOptions(app):
 # ------------------------------------------------------------------------------
 #                            VIEW: DRAWING FUNCTIONS
 # ------------------------------------------------------------------------------
+
+# Drawing the portal
+def drawPortal(app, canvas, cx, cy):
+    canvas.create_image(cx, cy, image = ImageTk.PhotoImage(app.smallPortalImage))
 
 # Getting random color
 def rgbString(r, g, b):
@@ -218,10 +222,19 @@ def drawTriangle(app, canvas, x0, y0, x1, y1, x2, y2, color):
 # Drawing the square obstacle
 def drawSquare(app, canvas, x0, y0, x1, y1, color):
     canvas.create_rectangle(x0, y0, x1, y1, fill = color, width = "3")
-# Drawing the ground. This does not change throughout the game for now.
 
+# Drawing the rectangle obstacle
+def drawRectangle(app, canvas, x0, y0, x1, y1, color):
+    canvas.create_rectangle(x0, y0, x1, y1, fill = color, width = "3")
+
+# Drawing the ground. This does not change throughout the game for now.
 def drawGround(app, canvas):
     x0, x1, y0, y1 = app.ground
+    canvas.create_line(x0, y0, x1, y1, fill = "black", width = "10")
+
+# Drawing the ceiling.
+def drawCeiling(app, canvas):
+    x0, x1, y0, y1 = app.ceiling
     canvas.create_line(x0, y0, x1, y1, fill = "black", width = "10")
 
 # Loop through the list of obstacles and draw them
@@ -235,7 +248,7 @@ def drawObstacles(app, canvas):
                         obstacle.x2, obstacle.y2,
                         "orange")
 
-        # If it is a square, we draw a rectangle
+        # If it is a square, we draw a square
         elif isinstance(obstacle, shapes.Square):
             drawSquare(app, canvas, 
                        obstacle.x0, obstacle.y0,
@@ -243,7 +256,13 @@ def drawObstacles(app, canvas):
 
         # If it is a portal, we draw circle
         elif isinstance(obstacle, shapes.Portal):
-            return 
+            drawPortal(app, canvas, obstacle.cx, obstacle.cy)
+
+        # If it is a rectangle, we draw rectangle:
+        elif isinstance(obstacle, shapes.Rectangle):
+            drawRectangle(app, canvas, 
+                          obstacle.x0, obstacle.y0, 
+                          obstacle.x1, obstacle.y1, "cyan")
 
 
 # ------------------------------------------------------------------------------
@@ -253,19 +272,49 @@ def drawObstacles(app, canvas):
 # Function to add obstacles randomly based on the BPM
 
 def addObstacle(app):
-    obstacleID = random.randint(1, 2)
-    # Create obstacle if obstacleID == 1
-    if obstacleID == 1:
-        triangle = shapes.Triangle(app.width - 20, app.height * 0.75, 
-                                   app.width - 10, app.height * 0.75 - 25,
-                                   app.width, app.height * 0.75, "orange", 
-                                   app.height * 0.75 - 30)
-        app.obstacles.append(triangle)
+    if app.score % 25 == 0: #and app.score != 0:
+        # Draw a portal if this happens
+        # app.obstacles.append(portal)
+        portal = shapes.Portal(app.width, app.height * 0.75 - 20)
+        app.obstacles.append(portal)
 
-    elif obstacleID == 2:
-        square = shapes.Square(app.width - 30, app.height * 0.75 - 30,
-                        app.width, app.height * 0.75, "purple")
-        app.obstacles.append(square)
+    # Creating obstacles for gameMode
+    elif app.mode == "gameMode":
+        obstacleID = random.randint(1, 2)
+    # Creating triangle
+        if obstacleID == 1:
+            triangle = shapes.Triangle(app.width - 20, app.height * 0.75, 
+                                    app.width - 10, app.height * 0.75 - 25,
+                                    app.width, app.height * 0.75, "orange", 
+                                    app.height * 0.75 - 30)
+            app.obstacles.append(triangle)
+
+    # Creating Square
+        elif obstacleID == 2:
+            square = shapes.Square(app.width - 30, app.height * 0.75 - 30,
+                            app.width, app.height * 0.75, "purple")
+            app.obstacles.append(square)
+
+    # Creating obstacles for reverse gravity mode
+    elif app.mode == "reverseGravityMode":
+        rectangleHeight = 120
+        rectangleWidth = 30
+        # Check what was the previous rectangle
+        rectangleID = random.randint(1, 2)
+        print(rectangleID)
+        # Create rectangle at the bottom
+        if rectangleID == 1:
+            rectangle = shapes.Rectangle(app.width - rectangleWidth / 2,
+                                         app.ground[2] - rectangleHeight / 2,
+                                         rectangleHeight, rectangleWidth)
+
+        # Create Rectangle at the top
+        elif rectangleID == 2:
+            rectangle = shapes.Rectangle(app.width - rectangleWidth / 2,
+                                         app.ceiling[2] + rectangleHeight / 2,
+                                         rectangleHeight, rectangleWidth)
+
+        app.obstacles.append(rectangle)
 
 # Function to check if obstacles have been passed by magic square
 # Must check the following conditions: 
@@ -281,14 +330,19 @@ def passedObstacle(app, obstacle):
     elif isinstance(obstacle, shapes.Square):
         if (app.magicSquare.x1 > obstacle.x0): return True
 
+    elif isinstance(obstacle, shapes.Rectangle):
+        if (app.magicSquare.x1 > obstacle.x0): return True
+
     return False
 
 # Function to remove obstacles once the obstacle goes out of range
 def removeObstacle(app):
     for obstacle in app.obstacles:
-        if obstacle.x1 < 0:
-            app.obstacles.remove(obstacle)
-        
+        # Does not apply to portals
+        if not isinstance(obstacle, shapes.Portal):
+            if obstacle.x1 < 0:
+                app.obstacles.remove(obstacle)
+            
 
 # Every x seconds, we move the entire map by one frame (all the obstacles)
 def takeStep(app):
@@ -299,6 +353,13 @@ def takeStep(app):
             obstacle.x2 -= 5
 
         elif isinstance(obstacle, shapes.Square):
+            obstacle.x0 -= 5
+            obstacle.x1 -= 5
+
+        elif isinstance(obstacle, shapes.Portal):
+            obstacle.cx -= 5
+
+        elif isinstance(obstacle, shapes.Rectangle):
             obstacle.x0 -= 5
             obstacle.x1 -= 5
 
@@ -340,6 +401,25 @@ def checkCollision(app):
                 app.mode = "gameOverMode"
                 return True
 
+        # If collide with a portal, change to another gameMode 
+        elif isinstance(obstacle, shapes.Portal):
+            # Check if the center of the portal lies within the magicSquare
+            portalLeftX = obstacle.cx - app.smallPortalImage.width / 2
+            portalBottomY = obstacle.cy + app.smallPortalImage.height / 2
+            portalRightX = obstacle.cx + app.smallPortalImage.width / 2
+            portalTopY = obstacle.cy - app.smallPortalImage.height / 2
+            if ((portalLeftX <= app.magicSquare.centerX <= portalRightX) and
+                 portalTopY <= app.magicSquare.centerY <= portalBottomY):
+                 app.mode = "reverseGravityMode"
+        
+        elif isinstance(obstacle, shapes.Rectangle):
+            # Check if the rectangle collides with the magicSquare
+                if ((app.magicSquare.x1 >= obstacle.x0) and
+                (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
+                passedObstacle(app, obstacle) == False):
+                    app.gameover = True
+                    app.mode = "gameOverMode"
+                    return True
     return False
 
 # ------------------------------------------------------------------------------
@@ -408,6 +488,7 @@ def splashScreenMode_mousePressed(app, event):
     if ((playButtonWidthLeft <= cx <= playButtonWidthRight) and 
         (playButtonHeightLeft <= cy <= playButtonHeightRight)):
         app.mode = 'gameMode'
+        app.score = 0
         # Stop splash screen music
         app.splashScreenMusic.stop()
         # Only start the song when the music has ended
@@ -447,7 +528,6 @@ def splashScreenMode_timerFired(app):
 
 def gameMode_redrawAll(app, canvas):
     # Can create the image, but it is very slow
-    #canvas.create_image(200, 300, image=ImageTk.PhotoImage(app.image2))
     drawBackground(app, canvas)
     drawGround(app, canvas)
     drawMagicSquare(app, canvas)
@@ -467,10 +547,18 @@ def gameMode_mousePressed(app, event):
     return 
 
 def gameMode_timerFired(app):
+    # Start the time the moment game starts:
+    if app.startTime == 0:
+        app.startTime = time.time()
+    if app.realStartTime == 0:
+        app.realStartTime = time.time()
+    
     # End the game if there is a collision
     if checkCollision(app) == True: return
+
     # Calculate the total time that has elapsed since previous obstacle
     newTime = time.time()
+
     # Temporary time passed variable for period calculation
     tempTimePassed = newTime - app.startTime
     # Actual time passed
@@ -498,6 +586,81 @@ def gameMode_timerFired(app):
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
 
+# ------------------------------------------------------------------------------
+#########################          ZIGZAG MODE        ##########################
+# ------------------------------------------------------------------------------
+
+def zigZagMode_redrawAll(app, canvas):
+    return
+
+def zigZagMode_keyPressed(app, event):
+    return
+
+def zigZagMode_mousePressed(app, event):
+    return
+
+def zigZagMode_timerFired(app):
+    return
+
+# ------------------------------------------------------------------------------
+#####################          REVERSE GRAVITY MODE        #####################
+# ------------------------------------------------------------------------------
+
+def reverseGravityMode_redrawAll(app, canvas):
+    drawBackground(app, canvas)
+    drawGround(app, canvas)
+    drawCeiling(app, canvas)
+    drawMagicSquare(app, canvas)
+    drawObstacles(app, canvas)
+    drawScore(app, canvas)
+
+def reverseGravityMode_keyPressed(app, event):
+    if event.key == "Space":
+        # Can only jump if the square is on the ground or on some object
+        app.magicSquare.teleport(app.ground, app.ceiling)
+
+def reverseGravityMode_mousePressed(app, event):
+    return
+
+def reverseGravityMode_timerFired(app):
+    # Start the time the moment game starts:
+    if app.startTime == 0:
+        app.startTime = time.time()
+    if app.realStartTime == 0:
+        app.realStartTime = time.time()
+    
+    # End the game if there is a collision
+    if checkCollision(app) == True: return
+
+    # Calculate the total time that has elapsed since previous obstacle
+    newTime = time.time()
+
+    # Temporary time passed variable for period calculation
+    tempTimePassed = newTime - app.startTime
+    # Actual time passed
+    app.timeElapsed = newTime - app.realStartTime
+    app.score = int(app.timeElapsed / app.duration * 100)
+    if tempTimePassed > app.period / 2:
+        addObstacle(app)
+        app.startTime = newTime
+    
+    # Move the entire map based on timerFired
+    takeStep(app)
+    # Check if any obstacles should be removed from the list of obstacles.
+    removeObstacle(app)
+
+    # Periodic dropping of the square if the square is above the ground.
+    # Only drop when not sitting on the square
+    if app.magicSquare.y1 == app.ground[2]:
+        app.isInAir = False
+
+    # Drop when no longer sitting on the square
+    if app.isInAir == True and app.isOnSquare == False:
+        if app.magicSquare.y1 != app.ground[2]:
+            app.magicSquare.drop()
+
+    # Changing the background color as time goes by
+    changeBackgroundColorGradually(app)
 
 # ------------------------------------------------------------------------------
 ########################         HIGH SCORE MODE       #########################

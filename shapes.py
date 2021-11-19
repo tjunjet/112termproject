@@ -62,6 +62,15 @@ class magicSquare(object):
         self.y0 = self.centerY - self.height / 2
         self.y1 = self.centerY + self.height / 2
 
+    def teleport(self, ground, ceiling):
+        if self.y1 == ground[2]:
+            self.y0 = ceiling[2]
+            self.y1 = ceiling[2] + self.height
+
+        else:
+            self.y0 = ground[2] - self.height
+            self.y1 = ground[2]
+
 # Obstacles
 class Square(object):
     def __init__(self, x0, y0, x1, y1, color):
@@ -83,9 +92,27 @@ class Triangle(object):
         self.color = color
         self.height = height
 
+# Portals for teleportation
 class Portal(object):
-    def __init__(self, center, radius, color):
-        self.center = center
-        self.radius = radius
-        self.color = color
+    # cx and cy are the coordinates of the center of the portal
+    def __init__(self, cx, cy):
+        self.cx = cx
+        self.cy = cy
+
+# Reverse Gravity Mode obstacles
+class Rectangle(object):
+    def __init__(self, cx, cy, height, width):
+        self.cx = cx
+        self.cy = cy
+        self.height = height
+        self.width = width
+        self.x0 = self.cx - width / 2
+        self.x1 = self.cx + width / 2
+        self.y0 = self.cy - height / 2
+        self.y1 = self.cy + height / 2
+
+# AntiGravity Mode obstacle
+class bigTriangle(object):
+    def __init__(self):
+        return
 
