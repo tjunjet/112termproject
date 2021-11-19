@@ -357,19 +357,19 @@ def addObstacle(app):
         # Else: if we will check app.obstacles[-1] if its on the gorund or not
 
         # Spawning mountain on the ground
-        if (app.obstacles == []) or (app.obstacles[-1].y0 == 0):
+        if ((app.obstacles == []) or (app.obstacles[-1].y0 == 0)) and app.score % 10 != 9:
             mountain = shapes.Mountain(app.width, app.height, 
-                                       app.width + height, app.height - height,
-                                       app.width + 2 * height, app.height,
-                                       "black", height)
+                                    app.width + height, app.height - height,
+                                    app.width + 2 * height, app.height,
+                                    "black", height)
             app.obstacles.append(mountain)
 
         # If the obstacles are on the ceiling
-        elif (app.obstacles[-1].y0 == app.height):
+        elif (app.obstacles[-1].y0 == app.height) and app.score % 10 != 9:
             mountain = shapes.Mountain(app.width, 0, 
-                                       app.width + height, 0 + height,
-                                       app.width + 2 * height, 0,
-                                       "grey", height)
+                                    app.width + height, 0 + height,
+                                    app.width + 2 * height, 0,
+                                    "grey", height)
 
             app.obstacles.append(mountain)
 
