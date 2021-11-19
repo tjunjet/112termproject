@@ -49,7 +49,12 @@ class magicSquare(object):
         self.y1 = self.centerY + self.height / 2
 
     def fly(self):
-        self.centerY -= 3
+        self.centerY -= 5
+        self.y0 = self.centerY - self.height / 2
+        self.y1 = self.centerY + self.height / 2
+
+    def fastDrop(self):
+        self.centerY += 5
         self.y0 = self.centerY - self.height / 2
         self.y1 = self.centerY + self.height / 2
 
@@ -114,7 +119,14 @@ class Rectangle(object):
         self.y1 = self.cy + height / 2
 
 # AntiGravity Mode obstacle
-class bigTriangle(object):
-    def __init__(self):
-        return
+class Mountain(object):
+    def __init__(self, x0, y0, x1, y1, x2, y2, color, height):
+        self.x0 = x0
+        self.x1 = x1
+        self.x2 = x2
+        self.y0 = y0
+        self.y1 = y1
+        self.y2 = y2
+        self.color = color
+        self.height = height
 

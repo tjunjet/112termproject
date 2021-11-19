@@ -74,7 +74,8 @@ def appStarted(app):
 
     # Checking if square is currently dropping or flying
     app.isDropping = False
-    app.isFlying = True
+
+    # Checking if square just jumped
 
     # Adding additional parameters that we have configured
     soundOptions(app)
@@ -237,6 +238,10 @@ def drawSquare(app, canvas, x0, y0, x1, y1, color):
 def drawRectangle(app, canvas, x0, y0, x1, y1, color):
     canvas.create_rectangle(x0, y0, x1, y1, fill = color, width = "3")
 
+# Drawing a mountain obstacle
+def drawMountain(app, canvas, x0, y0, x1, y1, x2, y2, color):
+    canvas.create_polygon(x0, y0, x1, y1, x2, y2, fill = color)
+
 # Drawing the ground. This does not change throughout the game for now.
 def drawGround(app, canvas):
     x0, x1, y0, y1 = app.ground
@@ -273,6 +278,14 @@ def drawObstacles(app, canvas):
             drawRectangle(app, canvas, 
                           obstacle.x0, obstacle.y0, 
                           obstacle.x1, obstacle.y1, "cyan")
+
+        # If it is a mountain, we draw the mountain
+        elif isinstance(obstacle, shapes.Mountain):
+            drawMountain(app, canvas, 
+                        obstacle.x0, obstacle.y0,
+                        obstacle.x1, obstacle.y1,
+                        obstacle.x2, obstacle.y2,
+                        obstacle.color)
 
 
 # ------------------------------------------------------------------------------
@@ -327,10 +340,42 @@ def addObstacle(app):
 
         app.obstacles.append(rectangle)
 
+    # Creating a mountain for the zigZagMode
+    elif app.mode == "zigZagMode":
+        # Here, the math works this way:
+        # We will get the height of the biggest possible mountain
+        # This will be 0.75 of the height of app.height
+        constantHeight = app.height * 0.75
+        # Then we will use random.randint to randomly obtain a value to scale
+        heightScale = random.randint(1, 5)
+        # After which, we will randomly get the actual height of the initialized triangle
+        height = 0.2 * heightScale * constantHeight
+
+        # Here, we will compute the random generation of the mountain obstacles
+        # We will alternate between placing the mountains on the ceiling or on the ground
+        # If there is nothing at the start, we will by default, we will initialize it on the ground
+        # Else: if we will check app.obstacles[-1] if its on the gorund or not
+
+        # Spawning mountain on the ground
+        if (app.obstacles == []) or (app.obstacles[-1].y0 == 0):
+            mountain = shapes.Mountain(app.width, app.height, 
+                                       app.width + height, app.height - height,
+                                       app.width + 2 * height, app.height,
+                                       "black", height)
+            app.obstacles.append(mountain)
+
+        # If the obstacles are on the ceiling
+        elif (app.obstacles[-1].y0 == app.height):
+            mountain = shapes.Mountain(app.width, 0, 
+                                       app.width + height, 0 + height,
+                                       app.width + 2 * height, 0,
+                                       "grey", height)
+
+            app.obstacles.append(mountain)
+
 # Function to check if obstacles have been passed by magic square
 # Must check the following conditions: 
 # 1. That the x0 coordinate of the square is on the right of the obstacle
-# 2. 
 
 def passedObstacle(app, obstacle):
     # Passed Triangle
@@ -344,15 +389,23 @@ def passedObstacle(app, obstacle):
     elif isinstance(obstacle, shapes.Rectangle):
         if (app.magicSquare.x1 > obstacle.x0): return True
 
+    # Passed Mountain
+    elif isinstance(obstacle, shapes.Mountain):
+        if ((app.magicSquare.x0 > obstacle.x2)): return True
+
     return False
 
 # Function to remove obstacles once the obstacle goes out of range
 def removeObstacle(app):
     for obstacle in app.obstacles:
         # Does not apply to portals
-        if not isinstance(obstacle, shapes.Portal):
+        if not (isinstance(obstacle, shapes.Portal) or isinstance(obstacle, shapes.Mountain)):
             if obstacle.x1 < 0:
                 app.obstacles.remove(obstacle)
+
+        elif isinstance(obstacle, shapes.Mountain):
+            if obstacle.x2 < 0:
+                app.obstacles.remove(obstacle) 
             
 
 # Every x seconds, we move the entire map by one frame (all the obstacles)
@@ -374,6 +427,11 @@ def takeStep(app):
             obstacle.x0 -= 5
             obstacle.x1 -= 5
 
+        elif isinstance(obstacle, shapes.Mountain):
+            obstacle.x0 -= 5
+            obstacle.x1 -= 5
+            obstacle.x2 -= 5
+
 # Must debug this!
 def checkCollision(app):
     # Collision happens when x1 of the magicSquare > x0 of the obstacle
@@ -393,8 +451,10 @@ def checkCollision(app):
             # If the magic square did not manage to make it past the square obstacle
 
             # If the magic square is on top of the square obstacle, it stays there.
-            if ((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
-                  (app.magicSquare.y1 == obstacle.y0)):
+            if (((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
+                  (app.magicSquare.y1 == obstacle.y0)) or 
+                  ((obstacle.x0 <= app.magicSquare.x0 <= obstacle.x1) and
+                  (app.magicSquare.y1 == obstacle.y0))):
                   # Change the variable:
                   app.isOnSquare = True
                   return False
@@ -420,28 +480,50 @@ def checkCollision(app):
             portalRightX = obstacle.cx + app.smallPortalImage.width / 2
             portalTopY = obstacle.cy - app.smallPortalImage.height / 2
             if ((portalLeftX <= app.magicSquare.centerX <= portalRightX) and
-                 portalTopY <= app.magicSquare.centerY <= portalBottomY):
-                 # Select a random mode to change to
-                 mode = ""
-                 while True:
+                portalTopY <= app.magicSquare.centerY <= portalBottomY):
+                # Select a random mode to change to
+                mode = ""
+                while True:
                     mode = random.choice(app.modesList)
                     # If the mode is the same, we will try until we get a different mode
                     if mode != app.mode:
                         break
-                 app.mode = mode
-                 # Remove the portal
-                 app.obstacles.pop()
-                 # Change background color
-                 app.backgroundColor = app.modesDict[app.mode]
+                #app.mode = mode
+                app.mode = "zigZagMode"
+                # Remove the portal
+                app.obstacles.pop()
+                app.magicSquare.centerX =  app.width / 5 + 10
+                app.magicSquare.centerY = app.height * 0.75 - 15
+                # Change background color
+                app.backgroundColor = app.modesDict[app.mode]
         
         elif isinstance(obstacle, shapes.Rectangle):
             # Check if the rectangle collides with the magicSquare
-                if ((app.magicSquare.x1 >= obstacle.x0) and
-                (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
-                passedObstacle(app, obstacle) == False):
+            if ((app.magicSquare.x1 >= obstacle.x0) and
+            (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
+            passedObstacle(app, obstacle) == False):
+                app.gameover = True
+                app.mode = "gameOverMode"
+                return True
+
+        elif isinstance(obstacle, shapes.Mountain):
+            # Doing the linear algebra to find intersection
+            if app.isDropping == False:
+                gradient1 = (obstacle.y1 - obstacle.y0) / (obstacle.x1 - obstacle.x0)
+                gradient2 = (obstacle.y2 - obstacle.y1) / (obstacle.x2 - obstacle.x1)
+                # Getting the linear equation
+                y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
+                y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
+                if (passedObstacle(app, obstacle) == False and 
+                   ((y_first - 1 <= app.magicSquare.y1 <= y_first + 1) or 
+                   (y_second - 1 <= app.magicSquare.y1 <= y_second + 1))):
                     app.gameover = True
                     app.mode = "gameOverMode"
                     return True
+
+            # If the obstacle is flying
+            else:
+                gradient2 = (obstacle.y2 - obstacle.y1) / (obstacle.x2 - obstacle.x1)
     return False
 
 # ------------------------------------------------------------------------------
@@ -653,14 +735,11 @@ def zigZagMode_timerFired(app):
     # Actual time passed
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
-    if tempTimePassed > app.period / 2:
-        if app.obstacles == []: 
-            addObstacle(app)
 
-        elif not isinstance(app.obstacles[-1], shapes.Portal):
-            addObstacle(app)
-
-        app.startTime = newTime
+    if (app.obstacles != []) and isinstance(app.obstacles[-1], shapes.Portal):
+        pass
+    elif (app.obstacles == []) or (app.obstacles[-1].x1 == app.width):
+        addObstacle(app)
     
     # Move the entire map based on timerFired
     takeStep(app)
@@ -669,7 +748,7 @@ def zigZagMode_timerFired(app):
 
     # While loop to perform the zigZag
     if app.isDropping == True and app.magicSquare.y1 != app.height:
-        app.magicSquare.drop()
+        app.magicSquare.fastDrop()
 
     elif app.isDropping == False and app.magicSquare.y0 != 0:
         app.magicSquare.fly()
