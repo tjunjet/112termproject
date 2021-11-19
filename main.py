@@ -619,8 +619,6 @@ def gameMode_timerFired(app):
 
 def zigZagMode_redrawAll(app, canvas):
     drawBackground(app, canvas)
-    drawGround(app, canvas)
-    drawCeiling(app, canvas)
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
     drawScore(app, canvas)
@@ -670,10 +668,10 @@ def zigZagMode_timerFired(app):
     removeObstacle(app)
 
     # While loop to perform the zigZag
-    if app.isDropping == True:
+    if app.isDropping == True and app.magicSquare.y1 != app.height:
         app.magicSquare.drop()
 
-    else:
+    elif app.isDropping == False and app.magicSquare.y0 != 0:
         app.magicSquare.fly()
 
     # Changing the background color as time goes by
