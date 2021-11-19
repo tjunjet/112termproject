@@ -36,6 +36,9 @@ directions = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 def appStarted(app):
     app.mode = "splashScreenMode"
     app.label = 'Geometry Dash!'
+    app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
+    app.modesDict = {'gameMode': [0, 0, 255], 'reverseGravityMode': [255, 0, 0], 
+                 'zigZagMode': [255, 255, 0]}
     app.height = 400
     app.width = 700
     app.ground = (0, app.width, app.height * 0.75, app.height * 0.75)
@@ -275,7 +278,8 @@ def drawObstacles(app, canvas):
 # Function to add obstacles randomly based on the BPM
 
 def addObstacle(app):
-    if app.score % 25 == 0: #and app.score != 0:
+    # Every 10% of the song, we generate a portal
+    if app.score % 10 == 0: # and app.score != 0:
         # Draw a portal if this happens
         # app.obstacles.append(portal)
         portal = shapes.Portal(app.width, app.height * 0.75 - 20)
@@ -413,11 +417,18 @@ def checkCollision(app):
             portalTopY = obstacle.cy - app.smallPortalImage.height / 2
             if ((portalLeftX <= app.magicSquare.centerX <= portalRightX) and
                  portalTopY <= app.magicSquare.centerY <= portalBottomY):
-                 app.mode = "reverseGravityMode"
+                 # Select a random mode to change to
+                 mode = ""
+                 while True:
+                    mode = random.choice(app.modesList)
+                    # If the mode is the same, we will try until we get a different mode
+                    if mode != app.mode:
+                        break
+                 app.mode = mode
                  # Remove the portal
                  app.obstacles.pop()
                  # Change background color
-                 app.backgroundColor = [255, 0, 0]
+                 app.backgroundColor = app.modesDict[app.mode]
         
         elif isinstance(obstacle, shapes.Rectangle):
             # Check if the rectangle collides with the magicSquare
@@ -603,7 +614,12 @@ def gameMode_timerFired(app):
 # ------------------------------------------------------------------------------
 
 def zigZagMode_redrawAll(app, canvas):
-    return
+    drawBackground(app, canvas)
+    drawGround(app, canvas)
+    drawCeiling(app, canvas)
+    drawMagicSquare(app, canvas)
+    drawObstacles(app, canvas)
+    drawScore(app, canvas)
 
 def zigZagMode_keyPressed(app, event):
     return
@@ -612,7 +628,49 @@ def zigZagMode_mousePressed(app, event):
     return
 
 def zigZagMode_timerFired(app):
-    return
+    # Start the time the moment game starts:
+    if app.startTime == 0:
+        app.startTime = time.time()
+    if app.realStartTime == 0:
+        app.realStartTime = time.time()
+    
+    # End the game if there is a collision
+    if checkCollision(app) == True: return
+
+    # Calculate the total time that has elapsed since previous obstacle
+    newTime = time.time()
+
+    # Temporary time passed variable for period calculation
+    tempTimePassed = newTime - app.startTime
+    # Actual time passed
+    app.timeElapsed = newTime - app.realStartTime
+    app.score = int(app.timeElapsed / app.duration * 100)
+    if tempTimePassed > app.period / 2:
+        if app.obstacles == []: 
+            addObstacle(app)
+
+        elif not isinstance(app.obstacles[-1], shapes.Portal):
+            addObstacle(app)
+
+        app.startTime = newTime
+    
+    # Move the entire map based on timerFired
+    takeStep(app)
+    # Check if any obstacles should be removed from the list of obstacles.
+    removeObstacle(app)
+
+    # Periodic dropping of the square if the square is above the ground.
+    # Only drop when not sitting on the square
+    if app.magicSquare.y1 == app.ground[2]:
+        app.isInAir = False
+
+    # Drop when no longer sitting on the square
+    if app.isInAir == True and app.isOnSquare == False:
+        if app.magicSquare.y1 != app.ground[2]:
+            app.magicSquare.drop()
+
+    # Changing the background color as time goes by
+    changeBackgroundColorGradually(app)
 
 # ------------------------------------------------------------------------------
 #####################          REVERSE GRAVITY MODE        #####################
