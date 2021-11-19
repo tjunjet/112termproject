@@ -49,7 +49,9 @@ class magicSquare(object):
         self.y1 = self.centerY + self.height / 2
 
     def fly(self):
-        return 42
+        self.centerY -= 3
+        self.y0 = self.centerY - self.height / 2
+        self.y1 = self.centerY + self.height / 2
 
     # Constant rotating of the square
     def rotate(self):

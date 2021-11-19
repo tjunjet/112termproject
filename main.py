@@ -72,6 +72,10 @@ def appStarted(app):
     # Checking if the magicSquare is on a square
     app.isOnSquare = False
 
+    # Checking if square is currently dropping or flying
+    app.isDropping = False
+    app.isFlying = True
+
     # Adding additional parameters that we have configured
     soundOptions(app)
     timerOptions(app)
@@ -622,7 +626,13 @@ def zigZagMode_redrawAll(app, canvas):
     drawScore(app, canvas)
 
 def zigZagMode_keyPressed(app, event):
-    return
+    # Perform the Zig Zags!
+    if event.key == "Space":
+        if app.isDropping == True:
+            app.isDropping = False
+
+        elif app.isDropping == False:
+            app.isDropping = True
 
 def zigZagMode_mousePressed(app, event):
     return
@@ -659,15 +669,12 @@ def zigZagMode_timerFired(app):
     # Check if any obstacles should be removed from the list of obstacles.
     removeObstacle(app)
 
-    # Periodic dropping of the square if the square is above the ground.
-    # Only drop when not sitting on the square
-    if app.magicSquare.y1 == app.ground[2]:
-        app.isInAir = False
+    # While loop to perform the zigZag
+    if app.isDropping == True:
+        app.magicSquare.drop()
 
-    # Drop when no longer sitting on the square
-    if app.isInAir == True and app.isOnSquare == False:
-        if app.magicSquare.y1 != app.ground[2]:
-            app.magicSquare.drop()
+    else:
+        app.magicSquare.fly()
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
