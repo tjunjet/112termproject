@@ -296,7 +296,7 @@ def drawObstacles(app, canvas):
 
 def addObstacle(app):
     # Every 10% of the song, we generate a portal
-    if app.score % 10 == 0: # and app.score != 0:
+    if app.score % 10 == 0:# and app.score != 0:
         # Draw a portal if this happens
         # app.obstacles.append(portal)
         portal = shapes.Portal(app.width, app.height * 0.75 - 20)
@@ -325,7 +325,6 @@ def addObstacle(app):
         rectangleWidth = 30
         # Check what was the previous rectangle
         rectangleID = random.randint(1, 2)
-        print(rectangleID)
         # Create rectangle at the bottom
         if rectangleID == 1:
             rectangle = shapes.Rectangle(app.width - rectangleWidth / 2,
@@ -357,7 +356,7 @@ def addObstacle(app):
         # Else: if we will check app.obstacles[-1] if its on the gorund or not
 
         # Spawning mountain on the ground
-        if ((app.obstacles == []) or (app.obstacles[-1].y0 == 0)) and app.score % 10 != 9:
+        if ((app.obstacles == []) or (app.obstacles[-1].y0 == 0)):
             mountain = shapes.Mountain(app.width, app.height, 
                                     app.width + height, app.height - height,
                                     app.width + 2 * height, app.height,
@@ -365,7 +364,7 @@ def addObstacle(app):
             app.obstacles.append(mountain)
 
         # If the obstacles are on the ceiling
-        elif (app.obstacles[-1].y0 == app.height) and app.score % 10 != 9:
+        elif (app.obstacles[-1].y0 == app.height):
             mountain = shapes.Mountain(app.width, 0, 
                                     app.width + height, 0 + height,
                                     app.width + 2 * height, 0,
@@ -489,7 +488,7 @@ def checkCollision(app):
                     if mode != app.mode:
                         break
                 #app.mode = mode
-                app.mode = "zigZagMode"
+                app.mode = mode
                 # Remove the portal
                 app.obstacles.pop()
                 app.magicSquare.centerX =  app.width / 5 + 10
@@ -508,22 +507,20 @@ def checkCollision(app):
 
         elif isinstance(obstacle, shapes.Mountain):
             # Doing the linear algebra to find intersection
-            if app.isDropping == False:
-                gradient1 = (obstacle.y1 - obstacle.y0) / (obstacle.x1 - obstacle.x0)
-                gradient2 = (obstacle.y2 - obstacle.y1) / (obstacle.x2 - obstacle.x1)
-                # Getting the linear equation
-                y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
-                y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
-                if (passedObstacle(app, obstacle) == False and 
-                   ((y_first - 1 <= app.magicSquare.y1 <= y_first + 1) or 
-                   (y_second - 1 <= app.magicSquare.y1 <= y_second + 1))):
-                    app.gameover = True
-                    app.mode = "gameOverMode"
-                    return True
+            # Four cases: For each for corner collision
+            # 1. Bottom right. 2. Top right. 3. Bottom Left. 4. Top left
+            # 1. Finding the gradient. Gradient = (y1 - y0) / (x1 - x0)
+            gradient1 = (obstacle.y1 - obstacle.y0) / (obstacle.x1 - obstacle.x0)
+            gradient2 = (obstacle.y2 - obstacle.y1) / (obstacle.x2 - obstacle.x1)
+            # Getting the linear equation
+            y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
+            y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
+            if ((y_first - 3 <= app.magicSquare.y1 <= y_first + 3) or 
+               (y_first - 3 <= (app.magicSquare.y1 - app.magicSquare.height) <= y_first + 3)):
+                app.gameover = True
+                app.mode = "gameOverMode"
+                return True
 
-            # If the obstacle is flying
-            else:
-                gradient2 = (obstacle.y2 - obstacle.y1) / (obstacle.x2 - obstacle.x1)
     return False
 
 # ------------------------------------------------------------------------------
