@@ -160,9 +160,15 @@ def soundOptions(app):
     # For now, I multiply 4 to period for simplicity
     app.period = 4 * 60 / app.bpm
     # Getting the list of pitches in the music
-    app.pitches = pitch_detection.get_pitch(app.filename)
+    app.pitches = pitch_detection.getListOfPitches(app.filename)
+    # Getting the length of the pitches
+    app.pitchesLength = len(app.pitches)
+    # Initializing the pitch index depending on the duration of the song
+    app.pitchIndex = 0
     # Getting the duration of the music
     app.duration = audio_length.getDurationOfMusic(app.filename)
+    # Frequency of sampling the app.pitches
+    app.samplingFrequency = app.duration / app.pitchesLength
 
 # Function that contains anything related to timerFired
 def timerOptions(app):
@@ -296,7 +302,7 @@ def drawObstacles(app, canvas):
 
 def addObstacle(app):
     # Every 10% of the song, we generate a portal
-    if app.score % 10 == 0:# and app.score != 0:
+    if app.score % 10 == 0 and app.score != 0:
         # Draw a portal if this happens
         # app.obstacles.append(portal)
         portal = shapes.Portal(app.width, app.height * 0.75 - 20)
@@ -304,6 +310,8 @@ def addObstacle(app):
 
     # Creating obstacles for gameMode
     elif app.mode == "gameMode":
+        # Here, we will perform some smart, random generation on the obstacles
+        # Using pitches 
         obstacleID = random.randint(1, 2)
     # Creating triangle
         if obstacleID == 1:
@@ -515,6 +523,7 @@ def checkCollision(app):
             # Getting the linear equation
             y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
             y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
+            # This is a bug
             if ((y_first - 3 <= app.magicSquare.y1 <= y_first + 3) or 
                (y_first - 3 <= (app.magicSquare.y1 - app.magicSquare.height) <= y_first + 3)):
                 app.gameover = True
@@ -665,14 +674,46 @@ def gameMode_timerFired(app):
     # Actual time passed
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
+    # Adding 1 to the pitch index every time a period passes
     if tempTimePassed > app.period:
-        if app.obstacles == []: 
-            addObstacle(app)
+        app.pitchIndex += 1
+    
+    # Adding the obstacles based on the frequency of pitches
+    if 0 <= app.pitches[app.pitchIndex] < 20:
+        if tempTimePassed > app.period:
+            if app.obstacles == []: 
+                addObstacle(app)
 
-        elif not isinstance(app.obstacles[-1], shapes.Portal):
-            addObstacle(app)
-        
-        app.startTime = newTime
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+            app.startTime = newTime
+            print("1")
+            print(app.pitchIndex)
+
+    # If the pitch is medium
+    elif 20 <= app.pitches[app.pitchIndex] < 40:
+        if tempTimePassed > app.period / 0.5:
+            if app.obstacles == []: 
+                addObstacle(app)
+
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+            app.startTime = newTime
+            print('2')
+            print(app.pitchIndex)
+
+    # If the pitch is high
+    else:
+        if tempTimePassed > app.period / 2:
+            if app.obstacles == []: 
+                addObstacle(app)
+
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+
+            app.startTime = newTime
+            print("3")
+            print(app.pitchIndex)
     
     # Move the entire map based on timerFired
     takeStep(app)

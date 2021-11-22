@@ -14,6 +14,8 @@ class magicSquare(object):
         self.y0 = centerY - height / 2
         self.y1 = centerY + height / 2
         self.dt = 5
+        # Initializing the velocity which is a constant dropping
+        self.velocity = -3
         self.angularFrequency = math.pi / self.dt
 
     # Getting the time taken for the square to jump across an obstacle
