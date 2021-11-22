@@ -455,24 +455,25 @@ def checkCollision(app):
         
         # If is a square
         elif isinstance(obstacle, shapes.Square):
-            print(app.magicSquare.y1)
-            print(obstacle.y0)
             # If the magic square did not manage to make it past the square obstacle
-
+            print(app.magicSquare.y1)
             # If the magic square is on top of the square obstacle, it stays there.
             if (((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
-                  (app.magicSquare.y1 == obstacle.y0)) or 
+                  (obstacle.y0 - 3 <= app.magicSquare.y1 <= obstacle.y0 + 3)) or 
                   ((obstacle.x0 <= app.magicSquare.x0 <= obstacle.x1) and
-                  (app.magicSquare.y1 == obstacle.y0))):
+                  (obstacle.y0 - 3 <= app.magicSquare.y1 <= obstacle.y0 + 3))):
                   # Change the variable:
                   app.isOnSquare = True
-                  print("yay!")
+                  app.magicSquare.centerY = obstacle.y0 - (app.magicSquare.height / 2)
+                  app.magicSquare.y1 = obstacle.y0
+                  app.magicSquare.y0 = app.magicSquare.y1 - app.magicSquare.height
                   return False
 
             # If magic square is no longer on square
             elif (app.isOnSquare == True and 
                   app.magicSquare.x0 >= obstacle.x1):
                   app.isOnSquare = False
+                  print("yay!")
 
             # If there is a head on collision between square and magicSquare
             elif ((app.magicSquare.x1 >= obstacle.x0) and
@@ -719,8 +720,12 @@ def gameMode_timerFired(app):
 
     # Periodic dropping of the square if the square is above the ground.
     # Only drop when not sitting on the square
-    if app.magicSquare.y1 == app.ground[2]:
+    if app.ground[2] - 3 <= app.magicSquare.y1 <= app.ground[2] + 3:
         app.isInAir = False
+        app.magicSquare.centerY = app.ground[2] - (app.magicSquare.height / 2)
+        app.magicSquare.y1 = app.ground[2]
+        app.magicSquare.y0 = app.magicSquare.y1 - app.magicSquare.height
+
 
     # Drop when no longer sitting on the square
     if app.isInAir == True and app.isOnSquare == False:
