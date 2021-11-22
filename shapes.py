@@ -9,13 +9,14 @@ class magicSquare(object):
         self.color = color
         self.centerX = centerX
         self.centerY = centerY
-        self.x0 = centerX - width / 2
-        self.x1 = centerX + width / 2
-        self.y0 = centerY - height / 2
-        self.y1 = centerY + height / 2
+        self.x0 = self.centerX - width / 2
+        self.x1 = self.centerX + width / 2
+        self.y0 = self.centerY - height / 2
+        self.y1 = self.centerY + height / 2
         self.dt = 5
         # Initializing the velocity which is a constant dropping
-        self.velocity = -3
+        # Default dropping velocity is 10 because terminal velocity
+        self.velocity = 10
         self.angularFrequency = math.pi / self.dt
 
     # Getting the time taken for the square to jump across an obstacle
@@ -26,10 +27,10 @@ class magicSquare(object):
     def jump(self):
         # Physics values
         # This displacement value can be configured whenever you want.
-        displacement = 60
+        self.velocity -= 20
 
         # Initial Jump
-        self.centerY -= displacement
+        self.centerY += self.velocity
         self.y0 = self.centerY - self.height / 2
         self.y1 = self.centerY + self.height / 2
 
@@ -67,7 +68,7 @@ class magicSquare(object):
     # Constant dropping of the square based on gravity
     # Every timer fired, we call a drop on the square
     def drop(self):
-        self.centerY += 3
+        self.centerY += self.velocity
         self.y0 = self.centerY - self.height / 2
         self.y1 = self.centerY + self.height / 2
 

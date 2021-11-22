@@ -42,9 +42,9 @@ def appStarted(app):
     app.height = 400
     app.width = 700
     app.ground = (0, app.width, app.height * 0.75, app.height * 0.75)
-    app.ceiling = (0, app.width, app.height * 0.25, app.height * 0.25)
+    app.ceiling = (0, app.width, int(app.height * 0.25), int(app.height * 0.25))
     app.magicSquare = shapes.magicSquare(30, 30, "green", 
-                       app.width / 5 + 10 , app.height * 0.75 - 15)
+                       app.width / 5 + 10 , app.ground[2] - 15)
     app.isInAir = False
     app.shapes = []
 
@@ -323,8 +323,8 @@ def addObstacle(app):
 
     # Creating Square
         elif obstacleID == 2:
-            square = shapes.Square(app.width - 30, app.height * 0.75 - 30,
-                            app.width, app.height * 0.75, "purple")
+            square = shapes.Square(app.width - 30, app.ground[2] - 30,
+                            app.width, app.ground[2], "purple")
             app.obstacles.append(square)
 
     # Creating obstacles for reverse gravity mode
@@ -455,6 +455,8 @@ def checkCollision(app):
         
         # If is a square
         elif isinstance(obstacle, shapes.Square):
+            print(app.magicSquare.y1)
+            print(obstacle.y0)
             # If the magic square did not manage to make it past the square obstacle
 
             # If the magic square is on top of the square obstacle, it stays there.
@@ -464,6 +466,7 @@ def checkCollision(app):
                   (app.magicSquare.y1 == obstacle.y0))):
                   # Change the variable:
                   app.isOnSquare = True
+                  print("yay!")
                   return False
 
             # If magic square is no longer on square
@@ -687,8 +690,6 @@ def gameMode_timerFired(app):
             elif not isinstance(app.obstacles[-1], shapes.Portal):
                 addObstacle(app)
             app.startTime = newTime
-            print("1")
-            print(app.pitchIndex)
 
     # If the pitch is medium
     elif 20 <= app.pitches[app.pitchIndex] < 40:
@@ -699,8 +700,6 @@ def gameMode_timerFired(app):
             elif not isinstance(app.obstacles[-1], shapes.Portal):
                 addObstacle(app)
             app.startTime = newTime
-            print('2')
-            print(app.pitchIndex)
 
     # If the pitch is high
     else:
@@ -712,8 +711,6 @@ def gameMode_timerFired(app):
                 addObstacle(app)
 
             app.startTime = newTime
-            print("3")
-            print(app.pitchIndex)
     
     # Move the entire map based on timerFired
     takeStep(app)
@@ -730,8 +727,15 @@ def gameMode_timerFired(app):
         if app.magicSquare.y1 != app.ground[2]:
             app.magicSquare.drop()
 
+    # "Acceleration"
+    if (app.magicSquare.velocity != 10):
+        app.magicSquare.velocity += 1
+
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
+
+    # Checking for the changing velocity
+    # app.centerY += app.velocity
 
 # ------------------------------------------------------------------------------
 #########################          ZIGZAG MODE        ##########################
