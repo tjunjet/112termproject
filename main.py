@@ -503,8 +503,9 @@ def checkCollision(app):
                 app.mode = mode
                 # Remove the portal
                 app.obstacles.pop()
-                app.magicSquare.centerX =  app.width / 5 + 10
                 app.magicSquare.centerY = app.height * 0.75 - 15
+                app.magicSquare.y1 = app.ground[2]
+                app.magicSquare.y0 = app.ground[2] - app.magicSquare.height
                 # Change background color
                 app.backgroundColor = app.modesDict[app.mode]
         
@@ -528,11 +529,11 @@ def checkCollision(app):
             y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
             y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
             # This is a bug
-            if ((y_first - 3 <= app.magicSquare.y1 <= y_first + 3) or 
-               (y_first - 3 <= (app.magicSquare.y1 - app.magicSquare.height) <= y_first + 3)):
-                app.gameover = True
-                app.mode = "gameOverMode"
-                return True
+            # if ((y_first - 3 <= app.magicSquare.y1 <= y_first + 3) or 
+            #    (y_first - 3 <= (app.magicSquare.y1 - app.magicSquare.height) <= y_first + 3)):
+            #     app.gameover = True
+            #     app.mode = "gameOverMode"
+            #     return True
 
     return False
 
@@ -725,7 +726,6 @@ def gameMode_timerFired(app):
         app.magicSquare.centerY = app.ground[2] - (app.magicSquare.height / 2)
         app.magicSquare.y1 = app.ground[2]
         app.magicSquare.y0 = app.magicSquare.y1 - app.magicSquare.height
-
 
     # Drop when no longer sitting on the square
     if app.isInAir == True and app.isOnSquare == False:
