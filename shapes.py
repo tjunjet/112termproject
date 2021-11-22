@@ -27,7 +27,7 @@ class magicSquare(object):
     def jump(self):
         # Physics values
         # This displacement value can be configured whenever you want.
-        self.velocity -= 20
+        self.velocity -= 24
 
         # Initial Jump
         self.centerY += self.velocity

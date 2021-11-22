@@ -75,7 +75,9 @@ def appStarted(app):
     # Checking if square is currently dropping or flying
     app.isDropping = False
 
-    # Checking if square just jumped
+    # Getting the height of a square
+    app.squareHeightScale = 1
+    app.scaleAscending = True
 
     # Adding additional parameters that we have configured
     soundOptions(app)
@@ -84,6 +86,7 @@ def appStarted(app):
     imageOptions(app)
     obstacleOptions(app)
     scoreOptions(app)
+    pitchOptions(app)
 
 # Drawing imageOptions
 def imageOptions(app):
@@ -169,6 +172,11 @@ def soundOptions(app):
     app.duration = audio_length.getDurationOfMusic(app.filename)
     # Frequency of sampling the app.pitches
     app.samplingFrequency = app.duration / app.pitchesLength
+    print(app.pitches)
+
+def pitchOptions(app):
+    app.pitchOne = 30
+    app.pitchTwo = 40
 
 # Function that contains anything related to timerFired
 def timerOptions(app):
@@ -312,7 +320,16 @@ def addObstacle(app):
     elif app.mode == "gameMode":
         # Here, we will perform some smart, random generation on the obstacles
         # Using pitches 
-        obstacleID = random.randint(1, 2)
+        # Adding the obstacles based on the frequency of pitches
+        if 0 <= app.pitches[app.pitchIndex] < 20:
+            obstacleID = 1
+
+        elif app.pitches[app.pitchIndex] > 40:
+            obstacleID = 2
+
+        else:
+            obstacleID = random.randint(1, 2)
+
     # Creating triangle
         if obstacleID == 1:
             triangle = shapes.Triangle(app.width - 20, app.height * 0.75, 
@@ -323,7 +340,8 @@ def addObstacle(app):
 
     # Creating Square
         elif obstacleID == 2:
-            square = shapes.Square(app.width - 30, app.ground[2] - 30,
+            squareHeight = app.squareHeightScale * 30
+            square = shapes.Square(app.width - 30, app.ground[2] - squareHeight,
                             app.width, app.ground[2], "purple")
             app.obstacles.append(square)
 
@@ -417,27 +435,30 @@ def removeObstacle(app):
 
 # Every x seconds, we move the entire map by one frame (all the obstacles)
 def takeStep(app):
+    # Just change move
+    move = 5
+    # Loop through obstacles
     for obstacle in app.obstacles:
         if isinstance(obstacle, shapes.Triangle):
-            obstacle.x0 -= 5
-            obstacle.x1 -= 5
-            obstacle.x2 -= 5
+            obstacle.x0 -= move
+            obstacle.x1 -= move
+            obstacle.x2 -= move
 
         elif isinstance(obstacle, shapes.Square):
-            obstacle.x0 -= 5
-            obstacle.x1 -= 5
+            obstacle.x0 -= move
+            obstacle.x1 -= move
 
         elif isinstance(obstacle, shapes.Portal):
-            obstacle.cx -= 5
+            obstacle.cx -= move
 
         elif isinstance(obstacle, shapes.Rectangle):
-            obstacle.x0 -= 5
-            obstacle.x1 -= 5
+            obstacle.x0 -= move
+            obstacle.x1 -= move
 
         elif isinstance(obstacle, shapes.Mountain):
-            obstacle.x0 -= 5
-            obstacle.x1 -= 5
-            obstacle.x2 -= 5
+            obstacle.x0 -= move
+            obstacle.x1 -= move
+            obstacle.x2 -= move
 
 # Must debug this!
 def checkCollision(app):
@@ -456,7 +477,6 @@ def checkCollision(app):
         # If is a square
         elif isinstance(obstacle, shapes.Square):
             # If the magic square did not manage to make it past the square obstacle
-            print(app.magicSquare.y1)
             # If the magic square is on top of the square obstacle, it stays there.
             if (((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
                   (obstacle.y0 - 3 <= app.magicSquare.y1 <= obstacle.y0 + 3)) or 
@@ -473,7 +493,6 @@ def checkCollision(app):
             elif (app.isOnSquare == True and 
                   app.magicSquare.x0 >= obstacle.x1):
                   app.isOnSquare = False
-                  print("yay!")
 
             # If there is a head on collision between square and magicSquare
             elif ((app.magicSquare.x1 >= obstacle.x0) and
@@ -684,7 +703,7 @@ def gameMode_timerFired(app):
         app.pitchIndex += 1
     
     # Adding the obstacles based on the frequency of pitches
-    if 0 <= app.pitches[app.pitchIndex] < 20:
+    if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
         if tempTimePassed > app.period:
             if app.obstacles == []: 
                 addObstacle(app)
@@ -694,8 +713,8 @@ def gameMode_timerFired(app):
             app.startTime = newTime
 
     # If the pitch is medium
-    elif 20 <= app.pitches[app.pitchIndex] < 40:
-        if tempTimePassed > app.period / 0.5:
+    elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchTwo:
+        if tempTimePassed > app.period / 2:
             if app.obstacles == []: 
                 addObstacle(app)
 
@@ -705,13 +724,25 @@ def gameMode_timerFired(app):
 
     # If the pitch is high
     else:
-        if tempTimePassed > app.period / 2:
+        if tempTimePassed > app.period / 4:
             if app.obstacles == []: 
                 addObstacle(app)
 
             elif not isinstance(app.obstacles[-1], shapes.Portal):
                 addObstacle(app)
 
+            # Change the height if it is a square
+            if isinstance(app.obstacles[-1], shapes.Square):
+                if app.scaleAscending == True:
+                    app.squareHeightScale += 1
+                    if app.squareHeightScale == 3:
+                        app.scaleAscending = False
+
+                else:
+                    app.squareHeightScale -= 1
+                    if app.squareHeightScale == 1:
+                        app.scaleAscending = True
+                
             app.startTime = newTime
     
     # Move the entire map based on timerFired
@@ -734,7 +765,7 @@ def gameMode_timerFired(app):
 
     # "Acceleration"
     if (app.magicSquare.velocity != 10):
-        app.magicSquare.velocity += 1
+        app.magicSquare.velocity += 2
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
