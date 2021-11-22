@@ -841,14 +841,40 @@ def reverseGravityMode_timerFired(app):
     # Actual time passed
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
-    if tempTimePassed > app.period / 2:
-        if app.obstacles == []: 
-            addObstacle(app)
+    # Adding 1 to the pitch index every time a period passes
+    if tempTimePassed > app.period:
+        app.pitchIndex += 1
+    
+    # Adding the obstacles based on the frequency of pitches
+    if 0 <= app.pitches[app.pitchIndex] < 20:
+        if tempTimePassed > app.period:
+            if app.obstacles == []: 
+                addObstacle(app)
 
-        elif not isinstance(app.obstacles[-1], shapes.Portal):
-            addObstacle(app)
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+            app.startTime = newTime
 
-        app.startTime = newTime
+    # If the pitch is medium
+    elif 20 <= app.pitches[app.pitchIndex] < 40:
+        if tempTimePassed > app.period / 2:
+            if app.obstacles == []: 
+                addObstacle(app)
+
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+            app.startTime = newTime
+
+    # If the pitch is high
+    else:
+        if tempTimePassed > app.period / 2:
+            if app.obstacles == []: 
+                addObstacle(app)
+
+            elif not isinstance(app.obstacles[-1], shapes.Portal):
+                addObstacle(app)
+
+            app.startTime = newTime
     
     # Move the entire map based on timerFired
     takeStep(app)
