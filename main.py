@@ -526,7 +526,7 @@ def checkCollision(app):
                     # If the mode is the same, we will try until we get a different mode
                     if mode != app.mode:
                         break
-                app.mode = mode
+                app.mode = "zigZagMode"
                 # For debugging: 
                 # app.mode = "reverseGravityMode"
                 # Remove the portal
@@ -558,11 +558,12 @@ def checkCollision(app):
             y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
             y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
             # This is a bug
-            # if ((y_first - 3 <= app.magicSquare.y1 <= y_first + 3) or 
-            #    (y_first - 3 <= (app.magicSquare.y1 - app.magicSquare.height) <= y_first + 3)):
-            #     app.gameover = True
-            #     app.mode = "gameOverMode"
-            #     return True
+            if ((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
+                ((app.magicSquare.y1 < y_first) or 
+               ((app.magicSquare.y1 - app.magicSquare.height) <= y_second))):
+                app.gameover = True
+                app.mode = "gameOverMode"
+                return True
 
     return False
 
