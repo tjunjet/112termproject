@@ -56,7 +56,6 @@ def peakDetect(data):
 
 # Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
 # detection/bpm_detection.py
-# Modified by me
 def bpmDetector(data, samplingFrequency):
     cA = []
     cD = []

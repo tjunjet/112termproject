@@ -1,4 +1,5 @@
 # Using aubio to get a list of pitches
+# Referenced: https://newbedev.com/trying-to-get-the-frequencies-of-a-wav-file-in-python
 
 import aubio
 from aubio import source
