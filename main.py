@@ -315,7 +315,7 @@ def drawObstacles(app, canvas):
 
 def addObstacle(app):
     # Every 10% of the song, we generate a portal
-    if app.score % 10 == 0 and app.score != 0:
+    if app.score % 10 == 0: # and app.score != 0:
         # Draw a portal if this happens
         # app.obstacles.append(portal)
         portal = shapes.Portal(app.width, app.height * 0.75 - 20)
@@ -530,7 +530,8 @@ def checkCollision(app):
                 # For debugging: 
                 # app.mode = "reverseGravityMode"
                 # Remove the portal
-                app.squareHeightScale = 1
+                if app.mode == "gameMode":
+                    app.squareHeightScale = 1
                 app.obstacles.pop()
                 app.magicSquare.centerY = app.height * 0.75 - 15
                 app.magicSquare.y1 = app.ground[2]
