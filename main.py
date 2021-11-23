@@ -722,6 +722,8 @@ def gameMode_timerFired(app):
     # If the pitch is medium
     elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchTwo:
         app.obstacleID = random.randint(1, 2)
+        if app.obstacleID == 1:
+            app.obstacleID = 2
         if tempTimePassed > app.period / 2:
             if app.obstacles == []: 
                 addObstacle(app)
@@ -733,7 +735,11 @@ def gameMode_timerFired(app):
     # If the pitch is high
     else:
         app.obstacleID = 2
+        if app.obstacleID == 1:
+            app.obstacleID = 2
         if tempTimePassed > app.period / 4:
+            if app.obstacleID == 1:
+                app.obstacleID = 2
             if app.obstacles == []:
                 if app.squareHeightScale == 3:
                     # If reach the third one: One of the three options can occur
@@ -741,7 +747,10 @@ def gameMode_timerFired(app):
                     # 2. Triangle
                     # 3. 3rd rectangle taller than second
                     app.squareHeightScale = random.randint(1, 3)
-                    app.obstacleID = random.randint(1, 2)
+                    if app.obstacleID == 1:
+                        app.obstacleID = 2
+                    else:
+                        app.obstacleID = random.randint(1, 2)
                 addObstacle(app)
 
             elif not isinstance(app.obstacles[-1], shapes.Portal):
