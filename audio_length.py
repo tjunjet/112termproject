@@ -11,5 +11,3 @@ def getDurationOfMusic(filename):
         duration = frames / float(rate)
     return duration
 
-print(getDurationOfMusic("Music/Forever Bound - Stereo Madness.wav"))
-

@@ -175,7 +175,6 @@ def soundOptions(app):
     app.duration = audio_length.getDurationOfMusic(app.filename)
     # Frequency of sampling the app.pitches
     app.samplingFrequency = app.duration / app.pitchesLength
-    print(app.pitches)
 
 def pitchOptions(app):
     app.pitchOne = 30
