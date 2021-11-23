@@ -79,6 +79,9 @@ def appStarted(app):
     app.squareHeightScale = 1
     app.scaleAscending = True
 
+    # Initializing a randomized obstacleID
+    app.obstacleID = 1
+
     # Adding additional parameters that we have configured
     soundOptions(app)
     timerOptions(app)
@@ -321,17 +324,17 @@ def addObstacle(app):
         # Here, we will perform some smart, random generation on the obstacles
         # Using pitches 
         # Adding the obstacles based on the frequency of pitches
-        if 0 <= app.pitches[app.pitchIndex] < 20:
-            obstacleID = 1
+        # if 0 <= app.pitches[app.pitchIndex] < 20:
+        #     app.obstacleID = 1
 
-        elif app.pitches[app.pitchIndex] > 40:
-            obstacleID = 2
+        # elif app.pitches[app.pitchIndex] > 40:
+        #     app.obstacleID = 2
 
-        else:
-            obstacleID = random.randint(1, 2)
+        # else:
+        #     app.obstacleID = random.randint(1, 2)
 
     # Creating triangle
-        if obstacleID == 1:
+        if app.obstacleID == 1:
             triangle = shapes.Triangle(app.width - 20, app.height * 0.75, 
                                     app.width - 10, app.height * 0.75 - 25,
                                     app.width, app.height * 0.75, "orange", 
@@ -339,7 +342,7 @@ def addObstacle(app):
             app.obstacles.append(triangle)
 
     # Creating Square
-        elif obstacleID == 2:
+        elif app.obstacleID == 2:
             squareHeight = app.squareHeightScale * 30
             square = shapes.Square(app.width - 30, app.ground[2] - squareHeight,
                             app.width, app.ground[2], "purple")
@@ -470,6 +473,7 @@ def checkCollision(app):
             if ((app.magicSquare.x1 >= obstacle.x0) and 
                 (obstacle.y1 <= app.magicSquare.y1 <= obstacle.y0) and 
                 passedObstacle(app, obstacle) == False):
+                app.gameMusic.stop()
                 app.gameover = True
                 app.mode = "gameOverMode"
                 return True
@@ -498,6 +502,7 @@ def checkCollision(app):
             elif ((app.magicSquare.x1 >= obstacle.x0) and
                 (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
                 passedObstacle(app, obstacle) == False):
+                app.gameMusic.stop()
                 app.gameover = True
                 app.mode = "gameOverMode"
                 return True
@@ -533,6 +538,7 @@ def checkCollision(app):
             if ((app.magicSquare.x1 >= obstacle.x0) and
             (obstacle.y0 <= app.magicSquare.y1 <= obstacle.y1) and
             passedObstacle(app, obstacle) == False):
+                app.gameMusic.stop()
                 app.gameover = True
                 app.mode = "gameOverMode"
                 return True
@@ -704,6 +710,7 @@ def gameMode_timerFired(app):
     
     # Adding the obstacles based on the frequency of pitches
     if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
+        app.obstacleID = 1
         if tempTimePassed > app.period:
             if app.obstacles == []: 
                 addObstacle(app)
@@ -714,6 +721,7 @@ def gameMode_timerFired(app):
 
     # If the pitch is medium
     elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchTwo:
+        app.obstacleID = random.randint(1, 2)
         if tempTimePassed > app.period / 2:
             if app.obstacles == []: 
                 addObstacle(app)
@@ -724,11 +732,22 @@ def gameMode_timerFired(app):
 
     # If the pitch is high
     else:
+        app.obstacleID = 2
         if tempTimePassed > app.period / 4:
-            if app.obstacles == []: 
+            if app.obstacles == []:
+                if app.squareHeightScale == 3:
+                    # If reach the third one: One of the three options can occur
+                    # 1. 3rd rectangle taller than second
+                    # 2. Triangle
+                    # 3. 3rd rectangle taller than second
+                    app.squareHeightScale = random.randint(1, 3)
+                    app.obstacleID = random.randint(1, 2)
                 addObstacle(app)
 
             elif not isinstance(app.obstacles[-1], shapes.Portal):
+                if app.squareHeightScale == 3:
+                    app.squareHeightScale = random.randint(1, 3)
+                    app.obstacleID = random.randint(1, 2)
                 addObstacle(app)
 
             # Change the height if it is a square
@@ -739,9 +758,9 @@ def gameMode_timerFired(app):
                         app.scaleAscending = False
 
                 else:
-                    app.squareHeightScale -= 1
                     if app.squareHeightScale == 1:
                         app.scaleAscending = True
+                    app.squareHeightScale -= 1
                 
             app.startTime = newTime
     
