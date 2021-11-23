@@ -9,28 +9,29 @@ from scipy import signal
 
 # Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
 # detection/bpm_detection.py
+# Modified by me
 def read_wav(filename):
     # open file, get metadata for audio
     try:
-        wf = wave.open(filename, "rb")
-    except IOError as e:
-        print(e)
+        waveFile = wave.open(filename, "rb")
+    except IOError as error:
+        print(error)
         return
 
-    # type = choose_type( wf.getsampwidth() ) 
-    nsamps = wf.getnframes()
-    assert nsamps > 0
+    # type = choose_type( waveFile.getsampwidth() ) 
+    numberOfSamples = waveFile.getnframes()
+    assert numberOfSamples > 0
 
-    fs = wf.getframerate()
+    fs = waveFile.getframerate()
     assert fs > 0
 
     # Read entire file and make into an array
-    samps = list(array.array("i", wf.readframes(nsamps)))
+    samps = list(array.array("i", waveFile.readframes(numberOfSamples)))
 
     try:
-        assert nsamps == len(samps)
+        assert numberOfSamples == len(samps)
     except AssertionError:
-        print(nsamps, "not equal to", len(samps))
+        print(numberOfSamples, "not equal to", len(samps))
 
     return samps, fs
 
@@ -123,17 +124,17 @@ def get_bpm(filename):
     data = []
     bpm = 0
     n = 0
-    nsamps = len(samps)
+    numberOfSamples = len(samps)
     window_samps = int(args.window * fs)
     samps_ndx = 0  # First sample in window_ndx
-    max_window_ndx = math.floor(nsamps / window_samps)
+    max_window_ndx = math.floor(numberOfSamples / window_samps)
     bpms = numpy.zeros(max_window_ndx)
 
     # Iterate through all windows
     for window_ndx in range(0, max_window_ndx):
 
         # Get a new set of samples
-        # print(n,":",len(bpms),":",max_window_ndx_int,":",fs,":",nsamps,":",samps_ndx)
+        # print(n,":",len(bpms),":",max_window_ndx_int,":",fs,":",numberOfSamples,":",samps_ndx)
         data = samps[samps_ndx : samps_ndx + window_samps]
         if not ((len(data) % window_samps) == 0):
             raise AssertionError(str(len(data)))

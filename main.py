@@ -526,7 +526,7 @@ def checkCollision(app):
                     # If the mode is the same, we will try until we get a different mode
                     if mode != app.mode:
                         break
-                app.mode = "zigZagMode"
+                app.mode = mode
                 # For debugging: 
                 # app.mode = "reverseGravityMode"
                 # Remove the portal
@@ -558,12 +558,12 @@ def checkCollision(app):
             y_first = gradient1 * (app.magicSquare.x1 - obstacle.x1) + obstacle.y1
             y_second = gradient2 * (app.magicSquare.x0 - obstacle.x1) + obstacle.y1
             # This is a bug
-            if ((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
-                ((app.magicSquare.y1 < y_first) or 
-               ((app.magicSquare.y1 - app.magicSquare.height) <= y_second))):
-                app.gameover = True
-                app.mode = "gameOverMode"
-                return True
+            # if ((obstacle.x0 <= app.magicSquare.x1 <= obstacle.x1) and
+            #     ((app.magicSquare.y1 < y_first) or 
+            #    ((app.magicSquare.y1 - app.magicSquare.height) <= y_second))):
+            #     app.gameover = True
+            #     app.mode = "gameOverMode"
+            #     return True
 
     return False
 
@@ -1122,3 +1122,16 @@ def playGeometryDash():
     runApp(width = 700, height = 400)
 
 playGeometryDash()
+
+# Comments:
+
+# The game might be too slow
+# Scrolling background to get a sense of the speed
+# Small picture with scrolling background: Modulo pixels
+
+# Change the speed after going through the different modes
+
+# Might want to join the rectangles together
+
+# Game Over Screen: Show their end percentage
+# 
