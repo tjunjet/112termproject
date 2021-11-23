@@ -1,4 +1,4 @@
-# Adapted from: https://www.codegrepper.com/code-examples/python/get+length+of+audio+file+python
+# Referenced: https://www.codegrepper.com/code-examples/python/get+length+of+audio+file+python
 
 import wave
 import contextlib
@@ -10,4 +10,3 @@ def getDurationOfMusic(filename):
         rate = f.getframerate()
         duration = frames / float(rate)
     return duration
-

@@ -1,26 +1,3 @@
-# Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
-# detection/bpm_detection.py
-
-
-# Copyright 2012 Free Software Foundation, Inc.
-#
-# This file is part of The BPM Detector Python
-#
-# The BPM Detector Python is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3, or (at your option)
-# any later version.
-#
-# The BPM Detector Python is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with The BPM Detector Python; see the file COPYING.  If not, write to
-# the Free Software Foundation, Inc., 51 Franklin Street,
-# Boston, MA 02110-1301, USA.
-
 import argparse
 import array
 import math
@@ -30,6 +7,8 @@ import numpy
 import pywt
 from scipy import signal
 
+# Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
+# detection/bpm_detection.py
 def read_wav(filename):
     # open file, get metadata for audio
     try:
@@ -56,13 +35,15 @@ def read_wav(filename):
     return samps, fs
 
 
-# print an error when no data can be found
+# Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
+# detection/bpm_detection.py
 def no_audio_data():
     print("No audio data for sample, skipping...")
     return None, None
 
 
-# simple peak detection
+# Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
+# detection/bpm_detection.py
 def peak_detect(data):
     max_val = numpy.amax(abs(data))
     peak_ndx = numpy.where(data == max_val)
@@ -70,7 +51,8 @@ def peak_detect(data):
         peak_ndx = numpy.where(data == -max_val)
     return peak_ndx
 
-
+# Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
+# detection/bpm_detection.py
 def bpm_detector(data, fs):
     cA = []
     cD = []
@@ -126,6 +108,7 @@ def bpm_detector(data, fs):
     return bpm, correl
 
 # Main function to get the median BPM of the code
+# This function was modified to get a list of bpms and eventually extract the average bpm
 def get_bpm(filename):
     parser = argparse.ArgumentParser(description="Process .wav file to determine the Beats Per Minute.")
     parser.add_argument(
@@ -168,6 +151,7 @@ def get_bpm(filename):
         n = n + 1
 
     bpm = numpy.median(bpms)
+    print(bpms)
     return bpm
 
 # Things to note:

@@ -187,6 +187,9 @@ def timerOptions(app):
     # Getting the startTime so it is easier to compute BPM
     app.startTime = 0
     app.realStartTime = 0
+    # Time Options
+    app.tempTimePassed = 0
+    app.startTimeOne = 0
 
 # Function that contains anything related to scoring
 def scoreOptions(app):
@@ -349,7 +352,8 @@ def addObstacle(app):
 
     # Creating obstacles for reverse gravity mode
     elif app.mode == "reverseGravityMode":
-        rectangleHeight = 120
+        rectangleHeight = 3 * app.pitches[app.pitchIndex]
+        print(rectangleHeight)
         rectangleWidth = 30
         # Check what was the previous rectangle
         rectangleID = random.randint(1, 2)
@@ -522,8 +526,9 @@ def checkCollision(app):
                     # If the mode is the same, we will try until we get a different mode
                     if mode != app.mode:
                         break
-                #app.mode = mode
                 app.mode = mode
+                # For debugging: 
+                # app.mode = "reverseGravityMode"
                 # Remove the portal
                 app.obstacles.pop()
                 app.magicSquare.centerY = app.height * 0.75 - 15
@@ -700,12 +705,16 @@ def gameMode_timerFired(app):
 
     # Temporary time passed variable for period calculation
     tempTimePassed = newTime - app.startTime
+    app.tempTimePassed = newTime - app.startTimeOne
     # Actual time passed
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
     # Adding 1 to the pitch index every time a period passes
     if tempTimePassed > app.period:
-        app.pitchIndex += 1
+        if app.pitchIndex < len(app.pitches):
+            app.pitchIndex += 1
+        else:
+            app.pitchIndex = 0
     
     # Adding the obstacles based on the frequency of pitches
     if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
@@ -750,12 +759,17 @@ def gameMode_timerFired(app):
                         app.obstacleID = 2
                     else:
                         app.obstacleID = random.randint(1, 2)
+                        print(f"{app.obstacleID}")
                 addObstacle(app)
 
             elif not isinstance(app.obstacles[-1], shapes.Portal):
                 if app.squareHeightScale == 3:
                     app.squareHeightScale = random.randint(1, 3)
-                    app.obstacleID = random.randint(1, 2)
+                    if isinstance(app.obstacles[-1], shapes.Triangle):
+                        app.obstacleID = 2
+                    else:
+                        app.obstacleID = random.randint(1, 2)
+                        print(f"{app.obstacleID}")
                 addObstacle(app)
 
             # Change the height if it is a square
@@ -779,7 +793,7 @@ def gameMode_timerFired(app):
 
     # Periodic dropping of the square if the square is above the ground.
     # Only drop when not sitting on the square
-    if app.ground[2] - 3 <= app.magicSquare.y1 <= app.ground[2] + 3:
+    if app.ground[2] - 5 <= app.magicSquare.y1 <= app.ground[2] + 5:
         app.isInAir = False
         app.magicSquare.centerY = app.ground[2] - (app.magicSquare.height / 2)
         app.magicSquare.y1 = app.ground[2]
@@ -837,6 +851,12 @@ def zigZagMode_timerFired(app):
 
     # Temporary time passed variable for period calculation
     tempTimePassed = newTime - app.startTime
+    if app.tempTimePassed > app.period:
+        if app.pitchIndex < len(app.pitches):
+            app.pitchIndex += 1
+        else:
+            app.pitchIndex = 0
+        app.startTimeOne = newTime
     # Actual time passed
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
@@ -900,12 +920,17 @@ def reverseGravityMode_timerFired(app):
     app.timeElapsed = newTime - app.realStartTime
     app.score = int(app.timeElapsed / app.duration * 100)
     # Adding 1 to the pitch index every time a period passes
-    if tempTimePassed > app.period:
-        app.pitchIndex += 1
+    app.tempTimePassed = newTime - app.startTimeOne
+    if app.tempTimePassed > app.period:
+        if app.pitchIndex < len(app.pitches):
+            app.pitchIndex += 1
+        else:
+            app.pitchIndex = 0
+        app.startTimeOne = newTime
     
     # Adding the obstacles based on the frequency of pitches
-    if 0 <= app.pitches[app.pitchIndex] < 20:
-        if tempTimePassed > app.period:
+    if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
+        if tempTimePassed > app.period / 2:
             if app.obstacles == []: 
                 addObstacle(app)
 
@@ -914,7 +939,7 @@ def reverseGravityMode_timerFired(app):
             app.startTime = newTime
 
     # If the pitch is medium
-    elif 20 <= app.pitches[app.pitchIndex] < 40:
+    elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchOne:
         if tempTimePassed > app.period / 2:
             if app.obstacles == []: 
                 addObstacle(app)
