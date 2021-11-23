@@ -153,7 +153,7 @@ def soundOptions(app):
     # https://www.youtube.com/watch?v=JhKyKEDxo8Q
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
     # Gets the beat per minute of the song
-    app.bpm = bpm_detection.get_bpm(app.filename)
+    app.bpm = bpm_detection.getBPM(app.filename)
     # Creating splash screen music
     app.splashScreenMusic = sound.Sound(app.splashScreenMusicFile)
     app.splashScreenMusic.start()
@@ -530,6 +530,7 @@ def checkCollision(app):
                 # For debugging: 
                 # app.mode = "reverseGravityMode"
                 # Remove the portal
+                app.squareHeightScale = 1
                 app.obstacles.pop()
                 app.magicSquare.centerY = app.height * 0.75 - 15
                 app.magicSquare.y1 = app.ground[2]
@@ -728,6 +729,7 @@ def gameMode_timerFired(app):
                 addObstacle(app)
             app.startTime = newTime
 
+
     # If the pitch is medium
     elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchTwo:
         app.obstacleID = random.randint(1, 2)
@@ -865,6 +867,8 @@ def zigZagMode_timerFired(app):
     if (app.obstacles != []) and isinstance(app.obstacles[-1], shapes.Portal):
         pass
     elif (app.obstacles == []) or (app.obstacles[-1].x1 == app.width):
+        # So no mountains are generated near the portal
+        #if app.score % 10 < 8 or app.score % 10 == 0:
         addObstacle(app)
     
     # Move the entire map based on timerFired

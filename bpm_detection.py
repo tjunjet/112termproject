@@ -22,8 +22,8 @@ def read_wav(filename):
     numberOfSamples = waveFile.getnframes()
     assert numberOfSamples > 0
 
-    fs = waveFile.getframerate()
-    assert fs > 0
+    samplingFrequency = waveFile.getframerate()
+    assert samplingFrequency > 0
 
     # Read entire file and make into an array
     samps = list(array.array("i", waveFile.readframes(numberOfSamples)))
@@ -33,36 +33,39 @@ def read_wav(filename):
     except AssertionError:
         print(numberOfSamples, "not equal to", len(samps))
 
-    return samps, fs
+    return samps, samplingFrequency
 
 
 # Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
 # detection/bpm_detection.py
-def no_audio_data():
+# Modified by me
+def noAudioData():
     print("No audio data for sample, skipping...")
     return None, None
 
 
 # Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
 # detection/bpm_detection.py
-def peak_detect(data):
-    max_val = numpy.amax(abs(data))
-    peak_ndx = numpy.where(data == max_val)
+# Modified by me
+def peakDetect(data):
+    maxValue = numpy.amax(abs(data))
+    peak_ndx = numpy.where(data == maxValue)
     if len(peak_ndx[0]) == 0:  # if nothing found then the max must be negative
-        peak_ndx = numpy.where(data == -max_val)
+        peak_ndx = numpy.where(data == -maxValue)
     return peak_ndx
 
 # Adapted From: https://github.com/scaperot/the-BPM-detector-python/blob/master/bpm_
 # detection/bpm_detection.py
-def bpm_detector(data, fs):
+# Modified by me
+def bpmDetector(data, samplingFrequency):
     cA = []
     cD = []
     correl = []
     cD_sum = []
     levels = 4
     max_decimation = 2 ** (levels - 1)
-    min_ndx = math.floor(60.0 / 220 * (fs / max_decimation))
-    max_ndx = math.floor(60.0 / 40 * (fs / max_decimation))
+    min_ndx = math.floor(60.0 / 220 * (samplingFrequency / max_decimation))
+    max_ndx = math.floor(60.0 / 40 * (samplingFrequency / max_decimation))
 
     for loop in range(0, levels):
         cD = []
@@ -82,11 +85,11 @@ def bpm_detector(data, fs):
         cD = cD - numpy.mean(cD)
 
         # 4) Recombine the signal before ACF
-        #    Essentially, each level the detail coefs (i.e. the HPF values) are concatenated to the beginning of the array
+        #    Essentially, each level the detail coesamplingFrequency (i.e. the HPF values) are concatenated to the beginning of the array
         cD_sum = cD[0 : math.floor(cD_minlen)] + cD_sum
 
     if [b for b in cA if b != 0.0] == []:
-        return no_audio_data()
+        return noAudioData()
 
     # Adding in the approximate data as well...
     cA = signal.lfilter([0.01], [1 - 0.99], cA)
@@ -99,18 +102,18 @@ def bpm_detector(data, fs):
 
     midpoint = math.floor(len(correl) / 2)
     correl_midpoint_tmp = correl[midpoint:]
-    peak_ndx = peak_detect(correl_midpoint_tmp[min_ndx:max_ndx])
+    peak_ndx = peakDetect(correl_midpoint_tmp[min_ndx:max_ndx])
     if len(peak_ndx) > 1:
-        return no_audio_data()
+        return noAudioData()
 
     peak_ndx_adjusted = peak_ndx[0] + min_ndx
-    bpm = 60.0 / peak_ndx_adjusted * (fs / max_decimation)
+    bpm = 60.0 / peak_ndx_adjusted * (samplingFrequency / max_decimation)
     # print(bpm)
     return bpm, correl
 
 # Main function to get the median BPM of the code
 # This function was modified to get a list of bpms and eventually extract the average bpm
-def get_bpm(filename):
+def getBPM(filename):
     parser = argparse.ArgumentParser(description="Process .wav file to determine the Beats Per Minute.")
     parser.add_argument(
         "--window",
@@ -120,12 +123,12 @@ def get_bpm(filename):
     )
 
     args = parser.parse_args()
-    samps, fs = read_wav(filename)
+    samps, samplingFrequency = read_wav(filename)
     data = []
     bpm = 0
     n = 0
     numberOfSamples = len(samps)
-    window_samps = int(args.window * fs)
+    window_samps = int(args.window * samplingFrequency)
     samps_ndx = 0  # First sample in window_ndx
     max_window_ndx = math.floor(numberOfSamples / window_samps)
     bpms = numpy.zeros(max_window_ndx)
@@ -134,12 +137,12 @@ def get_bpm(filename):
     for window_ndx in range(0, max_window_ndx):
 
         # Get a new set of samples
-        # print(n,":",len(bpms),":",max_window_ndx_int,":",fs,":",numberOfSamples,":",samps_ndx)
+        # print(n,":",len(bpms),":",max_window_ndx_int,":",samplingFrequency,":",numberOfSamples,":",samps_ndx)
         data = samps[samps_ndx : samps_ndx + window_samps]
         if not ((len(data) % window_samps) == 0):
             raise AssertionError(str(len(data)))
 
-        bpm, correl_temp = bpm_detector(data, fs)
+        bpm, correl_temp = bpmDetector(data, samplingFrequency)
         if bpm is None:
             continue
         bpms[window_ndx] = bpm
