@@ -82,6 +82,9 @@ def appStarted(app):
     # Initializing a randomized obstacleID
     app.obstacleID = 1
 
+    # Checking if the square is in the portal
+    app.isOnPortal = False
+
     # Adding additional parameters that we have configured
     soundOptions(app)
     timerOptions(app)
@@ -140,7 +143,9 @@ def imageOptions(app):
     # Portal Image
     # From: https://geometry-dash.fandom.com/wiki/Portals
     app.portalImage = app.loadImage("Images/portal.png")
-    app.smallPortalImage = app.scaleImage(app.portalImage, 0.25)
+    # Congratulations Image
+    # From: https://insights.dice.com/2018/08/15/hyper-casual-games-explained/
+    app.congratulationsImage = app.loadImage("Images/congratulations.png")
 
 def obstacleOptions(app):
     return
@@ -531,6 +536,7 @@ def checkCollision(app):
             portalTopY = obstacle.cy - app.smallPortalImage.height / 2
             if ((portalLeftX <= app.magicSquare.centerX <= portalRightX) and
                 portalTopY <= app.magicSquare.centerY <= portalBottomY):
+                app.isOnPortal = True
                 # Select a random mode to change to
                 mode = ""
                 while True:
@@ -550,6 +556,8 @@ def checkCollision(app):
                 app.magicSquare.y0 = app.ground[2] - app.magicSquare.height
                 # Change background color
                 app.backgroundColor = app.modesDict[app.mode]
+            else:
+                app.isOnPortal = False
         
         elif isinstance(obstacle, shapes.Rectangle):
             # Check if the rectangle collides with the magicSquare
@@ -880,8 +888,10 @@ def gameMode_timerFired(app):
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
 
-    # Checking for the changing velocity
-    # app.centerY += app.velocity
+    # Stop the game if it reaches 100%
+    if app.score == 100 and app.isOnPortal == True:
+        app.mode = "endMode"
+        app.gameMusic.stop()
 
 # ------------------------------------------------------------------------------
 #########################          ZIGZAG MODE        ##########################
@@ -951,6 +961,11 @@ def zigZagMode_timerFired(app):
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
+
+    # Stop the game if it reaches 100%
+    if app.score == 100 and app.isOnPortal == True:
+        app.mode = "endMode"
+        app.gameMusic.stop()
 
 # ------------------------------------------------------------------------------
 #####################          REVERSE GRAVITY MODE        #####################
@@ -1047,6 +1062,12 @@ def reverseGravityMode_timerFired(app):
 
     # Changing the background color as time goes by
     changeBackgroundColorGradually(app)
+
+    # Stop the game if it reaches 100%
+    if app.score == 100 and app.isOnPortal == True:
+        app.mode = "endMode"
+        app.gameMusic.stop()
+        
 
 # ------------------------------------------------------------------------------
 ########################         HIGH SCORE MODE       #########################
@@ -1260,6 +1281,20 @@ def pauseMode_mousePressed(app, event):
     return
 
 def pauseMode_timerFired(app):
+    return
+
+# ------------------------------------------------------------------------------
+##################################  END MODE  #################################
+# ------------------------------------------------------------------------------
+
+def endMode_redrawAll(app, canvas):
+    canvas.create_image(app.width / 2, app.height / 2, 
+                        image = ImageTk.PhotoImage(app.congratulationsImage))
+
+def endMode_mousePressed(app, event):
+    return
+
+def endMode_timerFired(app):
     return
 
 # ------------------------------------------------------------------------------
