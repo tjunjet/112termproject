@@ -146,6 +146,14 @@ def imageOptions(app):
     # Congratulations Image
     # From: https://insights.dice.com/2018/08/15/hyper-casual-games-explained/
     app.congratulationsImage = app.loadImage("Images/congratulations.png")
+    # Paused Image
+    # From: https://www.shutterstock.com/video/clip-14307913-pause-grunge-retro-video-game--tv
+    app.pausedImage = app.loadImage("Images/paused.png")
+    app.smallPausedImage = app.scaleImage(app.pausedImage, 0.5)
+    # Pause Button
+    # From: https://thepngstock.com/image/isometric-shoping-bucket
+    app.pauseButton = app.loadImage("Images/pause_button.png")
+    app.smallPauseButton = app.scaleImage(app.pauseButton, 0.18)
 
 def obstacleOptions(app):
     return
@@ -753,6 +761,7 @@ def gameMode_redrawAll(app, canvas):
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
     drawScore(app, canvas)
+    drawPauseButton(app, canvas)
 
 def gameMode_keyPressed(app, event):
     # Jumping
@@ -764,7 +773,15 @@ def gameMode_keyPressed(app, event):
             app.isOnSquare = False
 
 def gameMode_mousePressed(app, event):
-    return 
+    cx = event.x
+    cy = event.y
+    pauseButtonWidthLeft = 30 - app.smallPauseButton.width
+    pauseButtonWidthRight = 30 + app.smallPauseButton.width
+    pauseButtonHeightLeft = 30 - app.smallPauseButton.height
+    pauseButtonHeightRight = 30 + app.smallPauseButton.height
+    if ((pauseButtonWidthLeft <= cx <= pauseButtonWidthRight) and 
+        (pauseButtonHeightLeft <= cy <= pauseButtonHeightRight)):
+        app.mode = 'pauseMode'
 
 def gameMode_timerFired(app):
     # Start the time the moment game starts:
@@ -902,6 +919,7 @@ def zigZagMode_redrawAll(app, canvas):
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
     drawScore(app, canvas)
+    drawPauseButton(app, canvas)
 
 def zigZagMode_keyPressed(app, event):
     # Perform the Zig Zags!
@@ -913,7 +931,15 @@ def zigZagMode_keyPressed(app, event):
             app.isDropping = True
 
 def zigZagMode_mousePressed(app, event):
-    return
+    cx = event.x
+    cy = event.y
+    pauseButtonWidthLeft = 30 - app.smallPauseButton.width
+    pauseButtonWidthRight = 30 + app.smallPauseButton.width
+    pauseButtonHeightLeft = 30 - app.smallPauseButton.height
+    pauseButtonHeightRight = 30 + app.smallPauseButton.height
+    if ((pauseButtonWidthLeft <= cx <= pauseButtonWidthRight) and 
+        (pauseButtonHeightLeft <= cy <= pauseButtonHeightRight)):
+        app.mode = 'pauseMode'
 
 def zigZagMode_timerFired(app):
     # Start the time the moment game starts:
@@ -978,6 +1004,7 @@ def reverseGravityMode_redrawAll(app, canvas):
     drawMagicSquare(app, canvas)
     drawObstacles(app, canvas)
     drawScore(app, canvas)
+    drawPauseButton(app, canvas)
 
 def reverseGravityMode_keyPressed(app, event):
     if event.key == "Space":
@@ -985,7 +1012,15 @@ def reverseGravityMode_keyPressed(app, event):
         app.magicSquare.teleport(app.ground, app.ceiling)
 
 def reverseGravityMode_mousePressed(app, event):
-    return
+    cx = event.x
+    cy = event.y
+    pauseButtonWidthLeft = 30 - app.smallPauseButton.width
+    pauseButtonWidthRight = 30 + app.smallPauseButton.width
+    pauseButtonHeightLeft = 30 - app.smallPauseButton.height
+    pauseButtonHeightRight = 30 + app.smallPauseButton.height
+    if ((pauseButtonWidthLeft <= cx <= pauseButtonWidthRight) and 
+        (pauseButtonHeightLeft <= cy <= pauseButtonHeightRight)):
+        app.mode = 'pauseMode'
 
 def reverseGravityMode_timerFired(app):
     # Start the time the moment game starts:
@@ -1079,7 +1114,11 @@ def drawBackButton(app, canvas):
                         image = ImageTk.PhotoImage(app.backSmallButton))
     else:
         canvas.create_image(30, 30,
-                        image = ImageTk.PhotoImage(app.backButton))       
+                        image = ImageTk.PhotoImage(app.backButton))  
+
+def drawPauseButton(app, canvas):
+    canvas.create_image(30, 30,
+                        image = ImageTk.PhotoImage(app.smallPauseButton))
 
 def highScore_redrawAll(app, canvas):
     # Draw the background
@@ -1271,14 +1310,96 @@ def gameOverMode_timerFired(app):
 # ------------------------------------------------------------------------------
 
 def pauseMode_redrawAll(app, canvas):
-    # Drawing the pause button
-    return
+    # Black background
+    canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+
+    # Pause Image
+    canvas.create_image(app.width / 2, app.height / 2 - 150,
+                        image = ImageTk.PhotoImage(app.smallPausedImage))
+
+    # Draw score
+    drawFinalScore(app, canvas)
+
+    # Replay button to restart the game
+    if app.replayButtonBig == False:
+        canvas.create_image(app.width / 2, app.height / 2,
+                        image = ImageTk.PhotoImage(app.smallReplayButton))
+    else:
+        canvas.create_image(app.width / 2, app.height / 2,
+                        image = ImageTk.PhotoImage(app.mediumReplayButton))
+                        
+    # Return to home button
+    if app.returnHomeBig == False:
+        canvas.create_image(app.width / 2, app.height / 2 + 120, 
+                        image = ImageTk.PhotoImage(app.smallHomeButton))
+    else:
+        canvas.create_image(app.width / 2, app.height / 2 + 120, 
+                        image = ImageTk.PhotoImage(app.mediumHomeButton))
+
+    #TODO: Make this better
+    # Words in return to home button
+    if app.returnHomeBig == False:
+        canvas.create_text(app.width / 2, app.height / 2 + 120, 
+                           text = "Return to home", font = "Arial 18 bold")
+    else:
+        canvas.create_text(app.width / 2, app.height / 2 + 120, 
+                           text = "Return to home", font = "Arial 26 bold")
 
 def pauseMode_keyPressed(app, event):
     return
 
 def pauseMode_mousePressed(app, event):
-    return
+    # Location of mousePressed
+    cx = event.x
+    cy = event.y
+
+    # Mouse pressed within replay button, go back to gameMode
+    # TODO: There is a bug, the game needs to restart during gameMode.
+
+    replayButtonWidthLeft = app.width / 2 - app.smallReplayButton.width
+    replayButtonWidthRight = app.width / 2 + app.smallReplayButton.width
+    replayButtonHeightLeft = app.height / 2 - app.smallReplayButton.height
+    replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
+    if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
+        (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
+        app.mode = 'gameMode'
+        appStarted(app)
+        app.gameMusic.start()
+    
+    # Mouse pressed in return to home button, go back to splash screen
+    homeButtonWidthLeft = app.width / 2 - app.smallHomeButton.width
+    homeButtonWidthRight = app.width / 2 + app.smallHomeButton.width
+    homeButtonHeightLeft = (app.height / 2 + 120) - app.smallHomeButton.height
+    homeButtonHeightRight = (app.height / 2 + 120) + app.smallHomeButton.height
+    if ((homeButtonWidthLeft <= cx <= homeButtonWidthRight) and 
+        (homeButtonHeightLeft <= cy <= homeButtonHeightRight)):
+        app.gameMusic.stop()
+        app.mode = 'splashScreenMode'
+        app.splashScreenMusic.start()
+
+def pauseMode_mouseMoved(app, event):
+    cx, cy = event.x, event.y
+    # Replay button
+    replayButtonWidthLeft = app.width / 2 - app.smallReplayButton.width
+    replayButtonWidthRight = app.width / 2 + app.smallReplayButton.width
+    replayButtonHeightLeft = app.height / 2 - app.smallReplayButton.height
+    replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
+    if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
+        (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
+        app.replayButtonBig = True
+    else:
+        app.replayButtonBig = False
+
+    # Home Button
+    homeButtonWidthLeft = app.width / 2 - app.smallHomeButton.width
+    homeButtonWidthRight = app.width / 2 + app.smallHomeButton.width
+    homeButtonHeightLeft = (app.height / 2 + 120) - app.smallHomeButton.height
+    homeButtonHeightRight = (app.height / 2 + 120) + app.smallHomeButton.height
+    if ((homeButtonWidthLeft <= cx <= homeButtonWidthRight) and 
+        (homeButtonHeightLeft <= cy <= homeButtonHeightRight)):
+        app.returnHomeBig = True
+    else:
+        app.returnHomeBig = False
 
 def pauseMode_timerFired(app):
     return
