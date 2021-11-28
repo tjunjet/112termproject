@@ -143,9 +143,11 @@ def imageOptions(app):
     # Portal Image
     # From: https://geometry-dash.fandom.com/wiki/Portals
     app.portalImage = app.loadImage("Images/portal.png")
+    app.smallPortalImage = app.scaleImage(app.portalImage, 0.25)
     # Congratulations Image
     # From: https://insights.dice.com/2018/08/15/hyper-casual-games-explained/
     app.congratulationsImage = app.loadImage("Images/congratulations.png")
+    app.smallCongratsImage = app.scaleImage(app.congratulationsImage, 0.4)
     # Paused Image
     # From: https://www.shutterstock.com/video/clip-14307913-pause-grunge-retro-video-game--tv
     app.pausedImage = app.loadImage("Images/paused.png")
@@ -176,7 +178,7 @@ def soundOptions(app):
     app.splashScreenMusicFile = "Music/Geometry Dash OST _ Title Screen (Menu Loop).wav"
     # Getting the filename of the game song
     # https://www.youtube.com/watch?v=JhKyKEDxo8Q
-    app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    app.filename = "Music/No Game No Life - Opening _ This Game.wav"
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.getBPM(app.filename)
     # Creating splash screen music
@@ -564,6 +566,7 @@ def checkCollision(app):
                 app.magicSquare.y0 = app.ground[2] - app.magicSquare.height
                 # Change background color
                 app.backgroundColor = app.modesDict[app.mode]
+                app.isOnPortal = False
             else:
                 app.isOnPortal = False
         
@@ -749,6 +752,7 @@ def splashScreenMode_timerFired(app):
     #     addShape(app)
     # moveShape(app)
     #app.timeElapsed += app.timerDelay
+    app.gameMusic.stop()
     return
 # ------------------------------------------------------------------------------
 #################################  GAME MODE  ##################################
@@ -1172,12 +1176,30 @@ def mapPack_redrawAll(app, canvas):
     canvas.create_image(30, 30, 
                         image = ImageTk.PhotoImage(app.backSmallButton))
 
+    # Create the prompt
+    canvas.create_text(app.width / 2, app.height / 2 - 100, 
+                       text = "File path of your song: ", 
+                       font = "Arial 26 bold")
+    # Drawing input box
+    canvas.create_rectangle(50, app.height / 2 - 80, app.width - 50, 
+                            app.height / 2 - 40, fill = "white", width = 3)
+
+    # Prompt for the song name
+    canvas.create_text(app.width / 2, app.height / 2, 
+                       text = "Song name: ", 
+                       font = "Arial 26 bold")
+
+    # Drawing another input box
+    canvas.create_rectangle(100, app.height / 2 + 20, app.width - 100, 
+                            app.height / 2 + 60, fill = "white", width = 3)
+
 def mapPack_keyPressed(app, event):
     return
 
 def mapPack_mousePressed(app, event):
     cx = event.x
     cy = event.y
+    # If pressed the back button
     backButtonWidthLeft = 30 - app.backSmallButton.width
     backButtonWidthRight = 30 + app.backSmallButton.width
     backButtonHeightLeft = 30 - app.backSmallButton.height
@@ -1185,6 +1207,15 @@ def mapPack_mousePressed(app, event):
     if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
         (backButtonHeightLeft <= cy <= backButtonHeightRight)):
         app.mode = 'splashScreenMode'
+
+    # If pressed inside the box
+    box1WidthLeft = 50
+    box1WidthRight = app.width - 50
+    box1HeightLeft = app.height / 2 - 80
+    box1HeightRight = app.height / 2 - 40
+    if ((box1WidthLeft <= cx <= box1WidthRight) and 
+        (box1HeightLeft <= cy <= box1HeightRight)):
+        app.filename = app.getUserInput("File path of song: ")
 
 def mapPack_mouseMoved(app, event):
     cx, cy = event.x, event.y
@@ -1410,7 +1441,7 @@ def pauseMode_timerFired(app):
 
 def endMode_redrawAll(app, canvas):
     canvas.create_image(app.width / 2, app.height / 2, 
-                        image = ImageTk.PhotoImage(app.congratulationsImage))
+                        image = ImageTk.PhotoImage(app.smallCongratsImage))
 
 def endMode_mousePressed(app, event):
     return
