@@ -98,6 +98,8 @@ def logicOptions(app):
     app.mapPackBig = False
     app.highScoreBig = False
     app.backButtonBig = False
+    app.replayButtonBig = False
+    app.returnHomeBig = False
 
 # Drawing imageOptions
 def imageOptions(app):
@@ -129,10 +131,12 @@ def imageOptions(app):
     # From: https://cutewallpaper.org/21/geometry-dash-pic/view-page-21.html
     app.replayButton = app.loadImage("Images/replay_button.png")
     app.smallReplayButton = app.scaleImage(app.replayButton, 0.5)
+    app.mediumReplayButton = app.scaleImage(app.smallReplayButton, 1.4)
     # Return to home button
     # From: https://twitter.com/therealgdcolon/status/1362503200713166849
     app.returnToHomeButton = app.loadImage("Images/homeButton.png")
     app.smallHomeButton = app.scaleImage(app.returnToHomeButton, 0.4)
+    app.mediumHomeButton = app.scaleImage(app.smallHomeButton, 1.4)
     # Portal Image
     # From: https://geometry-dash.fandom.com/wiki/Portals
     app.portalImage = app.loadImage("Images/portal.png")
@@ -1141,22 +1145,46 @@ def mapPack_timerFired(app):
 ##############################  GAME OVER MODE  ################################
 # ------------------------------------------------------------------------------
 
+def drawFinalScore(app, canvas):
+    canvas.create_text(app.width / 2, app.height / 2 - 100, 
+                       text = f"Score: {app.score}%", font = "Arial 30 bold",
+                       fill = "white")
+
 def gameOverMode_redrawAll(app, canvas):
     # Black background
     canvas.create_rectangle(0, 0, app.width, app.height, fill = "black")
+
     # Game Over Image
-    canvas.create_image(app.width / 2, app.height / 2 - 100,
+    canvas.create_image(app.width / 2, app.height / 2 - 135,
                         image = ImageTk.PhotoImage(app.smallGameOverImage))
+
+    # Draw score
+    drawFinalScore(app, canvas)
+
     # Replay button to restart the game
-    canvas.create_image(app.width / 2, app.height / 2,
+    if app.replayButtonBig == False:
+        canvas.create_image(app.width / 2, app.height / 2,
                         image = ImageTk.PhotoImage(app.smallReplayButton))
+    else:
+        canvas.create_image(app.width / 2, app.height / 2,
+                        image = ImageTk.PhotoImage(app.mediumReplayButton))
+                        
     # Return to home button
-    canvas.create_image(app.width / 2, app.height / 2 + 120, 
+    if app.returnHomeBig == False:
+        canvas.create_image(app.width / 2, app.height / 2 + 120, 
                         image = ImageTk.PhotoImage(app.smallHomeButton))
+    else:
+        canvas.create_image(app.width / 2, app.height / 2 + 120, 
+                        image = ImageTk.PhotoImage(app.mediumHomeButton))
 
     #TODO: Make this better
     # Words in return to home button
-    canvas.create_text(app.width / 2, app.height / 2 + 120, text = "Return to home")
+    if app.returnHomeBig == False:
+        canvas.create_text(app.width / 2, app.height / 2 + 120, 
+                           text = "Return to home", font = "Arial 18 bold")
+    else:
+        canvas.create_text(app.width / 2, app.height / 2 + 120, 
+                           text = "Return to home", font = "Arial 26 bold")
 
 def gameOverMode_keyPressed(app, event):
     return
@@ -1190,6 +1218,30 @@ def gameOverMode_mousePressed(app, event):
         app.mode = 'splashScreenMode'
         app.splashScreenMusic.start()
 
+def gameOverMode_mouseMoved(app, event):
+    cx, cy = event.x, event.y
+    # Replay button
+    replayButtonWidthLeft = app.width / 2 - app.smallReplayButton.width
+    replayButtonWidthRight = app.width / 2 + app.smallReplayButton.width
+    replayButtonHeightLeft = app.height / 2 - app.smallReplayButton.height
+    replayButtonHeightRight = app.height / 2 + app.smallReplayButton.height
+    if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
+        (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
+        app.replayButtonBig = True
+    else:
+        app.replayButtonBig = False
+
+    # Home Button
+    homeButtonWidthLeft = app.width / 2 - app.smallHomeButton.width
+    homeButtonWidthRight = app.width / 2 + app.smallHomeButton.width
+    homeButtonHeightLeft = (app.height / 2 + 120) - app.smallHomeButton.height
+    homeButtonHeightRight = (app.height / 2 + 120) + app.smallHomeButton.height
+    if ((homeButtonWidthLeft <= cx <= homeButtonWidthRight) and 
+        (homeButtonHeightLeft <= cy <= homeButtonHeightRight)):
+        app.returnHomeBig = True
+    else:
+        app.returnHomeBig = False
+
 def gameOverMode_timerFired(app):
     return
 
@@ -1218,16 +1270,3 @@ def playGeometryDash():
     runApp(width = 700, height = 400)
 
 playGeometryDash()
-
-# Comments:
-
-# The game might be too slow
-# Scrolling background to get a sense of the speed
-# Small picture with scrolling background: Modulo pixels
-
-# Change the speed after going through the different modes
-
-# Might want to join the rectangles together
-
-# Game Over Screen: Show their end percentage
-# 
