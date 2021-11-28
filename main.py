@@ -90,6 +90,14 @@ def appStarted(app):
     obstacleOptions(app)
     scoreOptions(app)
     pitchOptions(app)
+    logicOptions(app)
+
+# Checking the logic
+def logicOptions(app):
+    app.playButtonBig = False
+    app.mapPackBig = False
+    app.highScoreBig = False
+    app.backButtonBig = False
 
 # Drawing imageOptions
 def imageOptions(app):
@@ -315,7 +323,7 @@ def drawObstacles(app, canvas):
 
 def addObstacle(app):
     # Every 10% of the song, we generate a portal
-    if app.score % 10 == 0: # and app.score != 0:
+    if app.score % 10 == 0 and app.score != 0:
         # Draw a portal if this happens
         # app.obstacles.append(portal)
         portal = shapes.Portal(app.width, app.height * 0.75 - 20)
@@ -603,20 +611,33 @@ def splashScreenMode_redrawAll(app, canvas):
 
     # Geometry dash logo
     canvas.create_image(app.width / 2, app.height / 2 - 100, 
-                        image=ImageTk.PhotoImage(app.splashScreenLogo))
+                    image=ImageTk.PhotoImage(app.splashScreenLogo))
+
 
     # Play Button
-    canvas.create_image(app.width / 2, app.height / 2 + 30, 
-                        image=ImageTk.PhotoImage(app.splashScreenPlaySmallButton))
+    if app.playButtonBig == False:
+        canvas.create_image(app.width / 2, app.height / 2 + 30, 
+                image=ImageTk.PhotoImage(app.splashScreenPlaySmallButton))
+    else:
+        canvas.create_image(app.width / 2, app.height / 2 + 30, 
+                image=ImageTk.PhotoImage(app.splashScreenPlayButton))
+
 
     # High Score
-    canvas.create_image(app.width / 2 + 200, app.height / 2 + 30, 
+    if app.highScoreBig == False:
+        canvas.create_image(app.width / 2 + 200, app.height / 2 + 30, 
                         image=ImageTk.PhotoImage(app.highScoreSmallImage))
+    else:
+        canvas.create_image(app.width / 2 + 200, app.height / 2 + 30, 
+                image=ImageTk.PhotoImage(app.highScoreImage))
 
     # Map Packs
-    canvas.create_image(app.width / 2 - 200, app.height / 2 + 30, 
+    if app.mapPackBig == False:
+        canvas.create_image(app.width / 2 - 200, app.height / 2 + 30, 
                         image=ImageTk.PhotoImage(app.mapPackSmallImage))
-
+    else:
+        canvas.create_image(app.width / 2 - 200, app.height / 2 + 30, 
+                        image=ImageTk.PhotoImage(app.mapPackImage))
 
 def splashScreenMode_keyPressed(app, event):
     return
@@ -662,6 +683,46 @@ def splashScreenMode_mousePressed(app, event):
     if ((mapPackButtonWidthLeft <= cx <= mapPackButtonWidthRight) and 
         (mapPackButtonHeightLeft <= cy <= mapPackButtonHeightRight)):
         app.mode = 'mapPack'
+
+def splashScreenMode_mouseMoved(app, event):
+    cx, cy = event.x, event.y
+    # If mouse hovered in the play button
+    playButtonWidth, playButtonheight = app.splashScreenPlaySmallButton.size
+    playButtonWidthLeft = app.width / 2 - playButtonWidth
+    playButtonWidthRight = app.width / 2 + playButtonWidth
+    playButtonHeightLeft = (app.height / 2 + 30) - playButtonheight
+    playButtonHeightRight = (app.height / 2 + 30) + playButtonheight
+
+    if ((playButtonWidthLeft <= cx <= playButtonWidthRight) and 
+    (playButtonHeightLeft <= cy <= playButtonHeightRight)):
+        app.playButtonBig = True
+    else:
+        app.playButtonBig = False
+
+    # If mouse hovered in mapPack:
+    mapPackButtonWidth, mapPackButtonheight = app.mapPackSmallImage.size
+    mapPackButtonWidthLeft = (app.width / 2 - 200) - mapPackButtonWidth
+    mapPackButtonWidthRight = (app.width / 2 - 200) + mapPackButtonWidth
+    mapPackButtonHeightLeft = (app.height / 2 + 30) - mapPackButtonheight
+    mapPackButtonHeightRight = (app.height / 2 + 30) + mapPackButtonheight
+    if ((mapPackButtonWidthLeft <= cx <= mapPackButtonWidthRight) and 
+        (mapPackButtonHeightLeft <= cy <= mapPackButtonHeightRight)):
+        app.mapPackBig = True
+    else:
+        app.mapPackBig = False
+
+    # If mouse hovered in high scores
+    highScoreButtonWidth, highScoreButtonheight = app.highScoreSmallImage.size
+    highScoreButtonWidthLeft = (app.width / 2 + 200) - highScoreButtonWidth
+    highScoreButtonWidthRight = (app.width / 2 + 200) + highScoreButtonWidth
+    highScoreButtonHeightLeft = (app.height / 2 + 30) - highScoreButtonheight
+    highScoreButtonHeightRight = (app.height / 2 + 30) + highScoreButtonheight
+    
+    if ((highScoreButtonWidthLeft <= cx <= highScoreButtonWidthRight) and 
+        (highScoreButtonHeightLeft <= cy <= highScoreButtonHeightRight)):
+        app.highScoreBig = True
+    else:
+        app.highScoreBig = False
 
 def splashScreenMode_timerFired(app):
     # if app.timeElapsed / app.timeDelay == 10:
@@ -988,8 +1049,12 @@ def reverseGravityMode_timerFired(app):
 # ------------------------------------------------------------------------------
 
 def drawBackButton(app, canvas):
-    canvas.create_image(30, 30,
+    if app.backButtonBig == False:
+        canvas.create_image(30, 30,
                         image = ImageTk.PhotoImage(app.backSmallButton))
+    else:
+        canvas.create_image(30, 30,
+                        image = ImageTk.PhotoImage(app.backButton))       
 
 def highScore_redrawAll(app, canvas):
     # Draw the background
@@ -1013,8 +1078,22 @@ def highScore_mousePressed(app, event):
         (backButtonHeightLeft <= cy <= backButtonHeightRight)):
         app.mode = 'splashScreenMode'
 
+def highScore_mouseMoved(app, event):
+    cx, cy = event.x, event.y
+    backButtonWidthLeft = 30 - app.backSmallButton.width
+    backButtonWidthRight = 30 + app.backSmallButton.width
+    backButtonHeightLeft = 30 - app.backSmallButton.height
+    backButtonHeightRight = 30 + app.backSmallButton.height
+    if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
+        (backButtonHeightLeft <= cy <= backButtonHeightRight)):
+        app.backButtonBig == True
+    else:
+        app.backButtonBig == False
+
+
 def highScore_timerFired(app):
     return
+        
 
 # ------------------------------------------------------------------------------
 ########################          MAP PACK MODE        #########################
@@ -1042,6 +1121,18 @@ def mapPack_mousePressed(app, event):
     if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
         (backButtonHeightLeft <= cy <= backButtonHeightRight)):
         app.mode = 'splashScreenMode'
+
+def mapPack_mouseMoved(app, event):
+    cx, cy = event.x, event.y
+    backButtonWidthLeft = 30 - app.backSmallButton.width
+    backButtonWidthRight = 30 + app.backSmallButton.width
+    backButtonHeightLeft = 30 - app.backSmallButton.height
+    backButtonHeightRight = 30 + app.backSmallButton.height
+    if ((backButtonWidthLeft <= cx <= backButtonWidthRight) and 
+        (backButtonHeightLeft <= cy <= backButtonHeightRight)):
+        app.backButtonBig == True
+    else:
+        app.backButtonBig == False
 
 def mapPack_timerFired(app):
     return
