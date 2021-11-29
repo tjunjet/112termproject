@@ -5,6 +5,7 @@ import math
 import os
 import time
 import pygame
+import numpy as np
 
 # ------------------------------------------------------------------------------
 #                           IMPORTING MY OWN LIBRARIES
@@ -176,16 +177,15 @@ def soundOptions(app):
     # Getting the filename of splash screen music
     # https://www.youtube.com/watch?v=qG3wCA4L7Aw
     app.splashScreenMusicFile = "Music/Geometry Dash OST _ Title Screen (Menu Loop).wav"
-    # Getting the filename of the game song
-    # https://www.youtube.com/watch?v=JhKyKEDxo8Q
-    app.filename = "Music/No Game No Life - Opening _ This Game.wav"
-    # Gets the beat per minute of the song
-    app.bpm = bpm_detection.getBPM(app.filename)
-    # Creating splash screen music
     app.splashScreenMusic = sound.Sound(app.splashScreenMusicFile)
     app.splashScreenMusic.start()
+    app.gameMusic = None
+    # Getting the filename of the game song
+    # https://www.youtube.com/watch?v=JhKyKEDxo8Q
+    app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    # Gets the beat per minute of the song
+    app.bpm = bpm_detection.getBPM(app.filename)
     # Getting the parameters to play song when the game starts
-    app.gameMusic = sound.Sound(app.filename)
     # Period let's us know the time interval in which obstacles appear
     # Using the physics equation f = 1 / T
     # Frequency is the number of beats per minute (By definition of frequency)
@@ -202,10 +202,11 @@ def soundOptions(app):
     app.duration = audio_length.getDurationOfMusic(app.filename)
     # Frequency of sampling the app.pitches
     app.samplingFrequency = app.duration / app.pitchesLength
+    app.calculateParams = True
 
 def pitchOptions(app):
-    app.pitchOne = 30
-    app.pitchTwo = 40
+    app.pitchOne = np.percentile(app.pitches, 25)
+    app.pitchTwo = np.percentile(app.pitches, 75)
 
 # Function that contains anything related to timerFired
 def timerOptions(app):
@@ -380,7 +381,6 @@ def addObstacle(app):
     # Creating obstacles for reverse gravity mode
     elif app.mode == "reverseGravityMode":
         rectangleHeight = 3 * app.pitches[app.pitchIndex]
-        print(rectangleHeight)
         rectangleWidth = 30
         # Check what was the previous rectangle
         rectangleID = random.randint(1, 2)
@@ -678,7 +678,8 @@ def splashScreenMode_mousePressed(app, event):
     playButtonHeightRight = (app.height / 2 + 30) + playButtonheight
     if ((playButtonWidthLeft <= cx <= playButtonWidthRight) and 
         (playButtonHeightLeft <= cy <= playButtonHeightRight)):
-        app.mode = 'gameMode'
+        app.mode = "gameMode"
+        app.gameMusic = sound.Sound(app.filename)
         app.score = 0
         # Stop splash screen music
         app.splashScreenMusic.stop()
@@ -752,7 +753,8 @@ def splashScreenMode_timerFired(app):
     #     addShape(app)
     # moveShape(app)
     #app.timeElapsed += app.timerDelay
-    app.gameMusic.stop()
+    if app.gameMusic != None:
+        app.gameMusic.stop()
     return
 # ------------------------------------------------------------------------------
 #################################  GAME MODE  ##################################
@@ -857,7 +859,6 @@ def gameMode_timerFired(app):
                         app.obstacleID = 2
                     else:
                         app.obstacleID = random.randint(1, 2)
-                        print(f"{app.obstacleID}")
                 addObstacle(app)
 
             elif not isinstance(app.obstacles[-1], shapes.Portal):
@@ -867,7 +868,6 @@ def gameMode_timerFired(app):
                         app.obstacleID = 2
                     else:
                         app.obstacleID = random.randint(1, 2)
-                        print(f"{app.obstacleID}")
                 addObstacle(app)
 
             # Change the height if it is a square
@@ -1184,6 +1184,10 @@ def mapPack_redrawAll(app, canvas):
     canvas.create_rectangle(50, app.height / 2 - 80, app.width - 50, 
                             app.height / 2 - 40, fill = "white", width = 3)
 
+    # Drawing the input
+    canvas.create_text(app.width / 2, app.height / 2 - 60, 
+                            text = f"{app.filename}", font = "Arial 23 bold")
+
     # Prompt for the song name
     canvas.create_text(app.width / 2, app.height / 2, 
                        text = "Song name: ", 
@@ -1296,6 +1300,7 @@ def gameOverMode_mousePressed(app, event):
         (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
         app.mode = 'gameMode'
         appStarted(app)
+        app.gameMusic = sound.Sound(app.filename)
         app.gameMusic.start()
     
     # Mouse pressed in return to home button, go back to splash screen
