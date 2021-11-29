@@ -183,6 +183,7 @@ def soundOptions(app):
     # Getting the filename of the game song
     # https://www.youtube.com/watch?v=JhKyKEDxo8Q
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    app.songname = ""
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.getBPM(app.filename)
     # Getting the parameters to play song when the game starts
@@ -1399,7 +1400,6 @@ def pauseMode_mousePressed(app, event):
     if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
         (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
         app.mode = 'gameMode'
-        appStarted(app)
         app.gameMusic.start()
     
     # Mouse pressed in return to home button, go back to splash screen
