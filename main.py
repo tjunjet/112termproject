@@ -1190,7 +1190,7 @@ def mapPack_redrawAll(app, canvas):
     canvas.create_rectangle(50, app.height / 2 - 80, app.width - 50, 
                             app.height / 2 - 40, fill = "white", width = 3)
 
-    # Drawing the input
+    # Drawing the input of file path
     canvas.create_text(app.width / 2, app.height / 2 - 60, 
                             text = f"{app.filename}", font = "Arial 23 bold")
 
@@ -1202,6 +1202,10 @@ def mapPack_redrawAll(app, canvas):
     # Drawing another input box
     canvas.create_rectangle(100, app.height / 2 + 20, app.width - 100, 
                             app.height / 2 + 60, fill = "white", width = 3)
+
+    # Draw the input of song name
+    canvas.create_text(app.width / 2, app.height / 2 + 40, 
+                            text = f"{app.songname}", font = "Arial 23 bold")
 
 def mapPack_keyPressed(app, event):
     return
@@ -1225,7 +1229,17 @@ def mapPack_mousePressed(app, event):
     box1HeightRight = app.height / 2 - 40
     if ((box1WidthLeft <= cx <= box1WidthRight) and 
         (box1HeightLeft <= cy <= box1HeightRight)):
-        app.filename = app.getUserInput("File path of song: ")
+        song = app.getUserInput("File path of song: ")
+        app.filename = song
+
+    box2WidthLeft = 100    
+    box2WidthRight = app.width - 100
+    box2HeightLeft = app.height / 2 + 20
+    box2HeightRight = app.height / 2 + 60
+    if ((box2WidthLeft <= cx <= box2WidthRight) and 
+        (box2HeightLeft <= cy <= box2HeightRight)):
+        song = app.getUserInput("Name of song: ")
+        app.songname = song
 
 def mapPack_mouseMoved(app, event):
     cx, cy = event.x, event.y
