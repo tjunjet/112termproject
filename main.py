@@ -38,7 +38,7 @@ def appStarted(app):
     app.mode = "splashScreenMode"
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
-    app.songname = ""
+    app.songname = "Stereo Madness"
     # Highest scores
     app.topThreeScores = getScores("high_scores.txt")
     restartGame(app)
@@ -175,6 +175,10 @@ def imageOptions(app):
     # From: https://thepngstock.com/image/isometric-shoping-bucket
     app.pauseButton = app.loadImage("Images/pause_button.png")
     app.smallPauseButton = app.scaleImage(app.pauseButton, 0.18)
+    # High Score Image
+    # From: https://www.netflix.com/title/81019087
+    app.highScoreLogo = app.loadImage("Images/highScore.png")
+    app.smallHighScoreLogo = app.scaleImage(app.highScoreLogo, 0.25)
 
 def obstacleOptions(app):
     return
@@ -1149,6 +1153,10 @@ def highScore_redrawAll(app, canvas):
     # Create the button
     drawBackButton(app, canvas)
 
+    # High Score Logo
+    canvas.create_image(app.width / 2, 20, 
+                        image = ImageTk.PhotoImage(app.smallHighScoreLogo))
+
     # Draw rectangles that show the score
     canvas.create_rectangle(50, 0.25 * app.height - 30, 
                             app.width - 50, 0.25 * app.height + 30,
@@ -1175,8 +1183,6 @@ def highScore_redrawAll(app, canvas):
     canvas.create_text(app.width / 2, 0.75 * app.height + 10, 
                        text = f"{app.topThreeScores[2]}", 
                        font = "Arial 26 bold")
-
-
 
 def highScore_keyPressed(app, event):
     return
