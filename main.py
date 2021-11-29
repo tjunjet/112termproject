@@ -36,8 +36,25 @@ directions = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 
 def appStarted(app):
     app.mode = "splashScreenMode"
-    app.label = 'Geometry Dash!'
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
+    app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    app.songname = ""
+    restartGame(app)
+
+# Making a function to restart game
+def restartGame(app):
+    booleanOptions(app)
+    soundOptions(app)
+    timerOptions(app)
+    graphicOptions(app)
+    imageOptions(app)
+    obstacleOptions(app)
+    scoreOptions(app)
+    pitchOptions(app)
+    logicOptions(app)
+
+# Boolean options
+def booleanOptions(app):
     app.modesDict = {'gameMode': [0, 0, 255], 'reverseGravityMode': [255, 0, 0], 
                  'zigZagMode': [255, 255, 0]}
     app.height = 400
@@ -85,16 +102,6 @@ def appStarted(app):
 
     # Checking if the square is in the portal
     app.isOnPortal = False
-
-    # Adding additional parameters that we have configured
-    soundOptions(app)
-    timerOptions(app)
-    graphicOptions(app)
-    imageOptions(app)
-    obstacleOptions(app)
-    scoreOptions(app)
-    pitchOptions(app)
-    logicOptions(app)
 
 # Checking the logic
 def logicOptions(app):
@@ -182,8 +189,6 @@ def soundOptions(app):
     app.gameMusic = None
     # Getting the filename of the game song
     # https://www.youtube.com/watch?v=JhKyKEDxo8Q
-    app.filename = "Music/Forever Bound - Stereo Madness.wav"
-    app.songname = ""
     # Gets the beat per minute of the song
     app.bpm = bpm_detection.getBPM(app.filename)
     # Getting the parameters to play song when the game starts
@@ -1300,7 +1305,7 @@ def gameOverMode_mousePressed(app, event):
     if ((replayButtonWidthLeft <= cx <= replayButtonWidthRight) and 
         (replayButtonHeightLeft <= cy <= replayButtonHeightRight)):
         app.mode = 'gameMode'
-        appStarted(app)
+        restartGame(app)
         app.gameMusic = sound.Sound(app.filename)
         app.gameMusic.start()
     
