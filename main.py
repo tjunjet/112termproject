@@ -37,7 +37,7 @@ directions = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 def appStarted(app):
     app.mode = "splashScreenMode"
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
-    app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    app.filename = "Music/No Game No Life - Opening _ This Game.wav"
     app.songname = "Stereo Madness"
     # Highest scores
     app.topThreeScores = getScores("high_scores.txt")
@@ -1075,35 +1075,39 @@ def reverseGravityMode_timerFired(app):
         app.startTimeOne = newTime
     
     # Adding the obstacles based on the frequency of pitches
-    if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
-        if tempTimePassed > app.period / 2:
-            if app.obstacles == []: 
-                addObstacle(app)
+    try:
+        if 0 <= app.pitches[app.pitchIndex] < app.pitchOne:
+            if tempTimePassed > app.period / 2:
+                if app.obstacles == []: 
+                    addObstacle(app)
 
-            elif not isinstance(app.obstacles[-1], shapes.Portal):
-                addObstacle(app)
-            app.startTime = newTime
+                elif not isinstance(app.obstacles[-1], shapes.Portal):
+                    addObstacle(app)
+                app.startTime = newTime
 
-    # If the pitch is medium
-    elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchOne:
-        if tempTimePassed > app.period / 2:
-            if app.obstacles == []: 
-                addObstacle(app)
+        # If the pitch is medium
+        elif app.pitchOne <= app.pitches[app.pitchIndex] < app.pitchOne:
+            if tempTimePassed > app.period / 2:
+                if app.obstacles == []: 
+                    addObstacle(app)
 
-            elif not isinstance(app.obstacles[-1], shapes.Portal):
-                addObstacle(app)
-            app.startTime = newTime
+                elif not isinstance(app.obstacles[-1], shapes.Portal):
+                    addObstacle(app)
+                app.startTime = newTime
 
-    # If the pitch is high
-    else:
-        if tempTimePassed > app.period / 2:
-            if app.obstacles == []: 
-                addObstacle(app)
+        # If the pitch is high
+        else:
+            if tempTimePassed > app.period / 2:
+                if app.obstacles == []: 
+                    addObstacle(app)
 
-            elif not isinstance(app.obstacles[-1], shapes.Portal):
-                addObstacle(app)
+                elif not isinstance(app.obstacles[-1], shapes.Portal):
+                    addObstacle(app)
 
-            app.startTime = newTime
+                app.startTime = newTime
+
+    except:
+        app.pitchIndex = 0
     
     # Move the entire map based on timerFired
     takeStep(app)
