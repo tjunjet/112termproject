@@ -39,6 +39,8 @@ def appStarted(app):
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
     app.songname = ""
+    # Highest scores
+    app.topThreeScores = getScores("high_scores.txt")
     restartGame(app)
 
 # Making a function to restart game
@@ -52,6 +54,15 @@ def restartGame(app):
     scoreOptions(app)
     pitchOptions(app)
     logicOptions(app)
+
+# Defining a function to get the top three scores
+def getScores(filename):
+    with open("high_scores.txt") as f:
+        lines = f.readlines()
+    first, second, third = lines[0], lines[1], lines[2]
+    topThreeScores = [first, second, third]
+    print(topThreeScores)
+    return topThreeScores
 
 # Boolean options
 def booleanOptions(app):
@@ -1138,6 +1149,35 @@ def highScore_redrawAll(app, canvas):
     # Create the button
     drawBackButton(app, canvas)
 
+    # Draw rectangles that show the score
+    canvas.create_rectangle(50, 0.25 * app.height - 30, 
+                            app.width - 50, 0.25 * app.height + 30,
+                            fill = "yellow", width = 5)
+
+    canvas.create_rectangle(50, 0.5 * app.height - 30, 
+                            app.width - 50, 0.5 * app.height + 30,
+                            fill = "yellow", width = 5)
+
+    canvas.create_rectangle(50, 0.75 * app.height - 30, 
+                            app.width - 50, 0.75 * app.height + 30,
+                            fill = "yellow", width = 5)
+
+
+    # Draw the highScores
+    canvas.create_text(app.width / 2, 0.25 * app.height + 10, 
+                       text = f"{app.topThreeScores[0]}", 
+                       font = "Arial 26 bold")
+
+    canvas.create_text(app.width / 2, 0.5 * app.height + 10, 
+                       text = f"{app.topThreeScores[1]}", 
+                       font = "Arial 26 bold")
+
+    canvas.create_text(app.width / 2, 0.75 * app.height + 10, 
+                       text = f"{app.topThreeScores[2]}", 
+                       font = "Arial 26 bold")
+
+
+
 def highScore_keyPressed(app, event):
     return
 
@@ -1359,7 +1399,8 @@ def gameOverMode_mouseMoved(app, event):
         app.returnHomeBig = False
 
 def gameOverMode_timerFired(app):
-    return
+    with open("high_scores.txt") as f:
+        lines = f.readlines()
 
 # ------------------------------------------------------------------------------
 #################################  PAUSE MODE  #################################
