@@ -1,3 +1,4 @@
+# To play the sound of the music.
 # From: https://www.cs.cmu.edu/~112/notes/notes-animations-part4.html
 
 from cmu_112_graphics import *

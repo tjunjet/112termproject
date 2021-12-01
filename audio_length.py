@@ -1,3 +1,5 @@
+# File to find the length of the audio imported.
+
 # Referenced: https://www.codegrepper.com/code-examples/python/get+length+of+audio+file+python
 
 import wave

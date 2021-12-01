@@ -1,3 +1,5 @@
+# File for volume detection
+
 import wave
 import numpy
 import sys
@@ -54,11 +56,9 @@ def get_volumes(file):
         # Getting the median of all these volumes
         averageVolume = numpy.median(samps)
         volumes.append(averageVolume)
-        print(averageVolume)
         # Remove the first 100 values
         for i in range(100):
             samples.pop(i)
-
 
 
     # Compute the energy (volume)

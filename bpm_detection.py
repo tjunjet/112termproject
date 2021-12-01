@@ -1,3 +1,5 @@
+# File to detect the average BPM of the music.
+
 import argparse
 import array
 import math
