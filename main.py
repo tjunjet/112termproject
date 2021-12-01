@@ -40,7 +40,7 @@ def appStarted(app):
     app.mode = "splashScreenMode"
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
     app.filename = "Music/Forever Bound - Stereo Madness.wav"
-    app.songname = "Watermelon Sugar"
+    app.songname = "Stereo Madness"
     # Highest scores
     app.topThreeScores = getScores("high_scores.txt")
     restartGame(app)
@@ -528,6 +528,10 @@ def checkCollision(app):
                 passedObstacle(app, obstacle) == False):
                 app.gameMusic.stop()
                 app.gameover = True
+                # Writing the high scores into the high_scores.txt file
+                textFile = open("high_scores.txt", "a")
+                textFile.write(f"{app.songname}: {app.score}" + "\n")
+                textFile.close()
                 app.mode = "gameOverMode"
                 return True
         
@@ -557,6 +561,10 @@ def checkCollision(app):
                 passedObstacle(app, obstacle) == False):
                 app.gameMusic.stop()
                 app.gameover = True
+                # Writing the high scores into the high_scores.txt file
+                textFile = open("high_scores.txt", "a")
+                textFile.write(f"{app.songname}: {app.score}" + "\n")
+                textFile.close()
                 app.mode = "gameOverMode"
                 return True
 
@@ -600,6 +608,10 @@ def checkCollision(app):
             passedObstacle(app, obstacle) == False):
                 app.gameMusic.stop()
                 app.gameover = True
+                # Writing the high scores into the high_scores.txt file
+                textFile = open("high_scores.txt", "a")
+                textFile.write(f"{app.songname}: {app.score}" + "\n")
+                textFile.close()
                 app.mode = "gameOverMode"
                 return True
 
@@ -1411,8 +1423,34 @@ def gameOverMode_mouseMoved(app, event):
         app.returnHomeBig = False
 
 def gameOverMode_timerFired(app):
-    with open("high_scores.txt") as f:
+    # Read the highest three scores
+    mainLine = []
+    with open("high_scores.txt", "r") as f:
         lines = f.readlines()
+        topScores = []
+        # Getting a list of the top three scores
+        for i in range(len(lines)):
+            item = lines[i]
+            colonIndex = item.find(":")
+            score = item[colonIndex + 2:]
+            topScores.append(int(score))
+        # Destructively only obtain highest three scores
+        for i in range(len(topScores)):
+            if app.score > topScores[i]:
+                topScores.pop(i)
+                for item in lines:
+                    if str(topScores[i]) in item:
+                        lines.remove(item)
+                lines.append(f"{app.songname}: {app.score}")
+                mainLine = lines
+        f.close()
+    
+    # Write the new data into the file
+    with open("high_scores.txt", "r") as f:
+        for item in mainLine:
+            f.write(item + "\n")
+    f.close()
+
 
 # ------------------------------------------------------------------------------
 #################################  PAUSE MODE  #################################
