@@ -76,4 +76,4 @@ pip install Wave
 Run main.py to run the code.
 
 # List of Shortcuts for the game
-There are no shortcuts for this game. 
+There are no shortcuts for this game.
