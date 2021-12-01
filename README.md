@@ -1,5 +1,3 @@
-# 112termproject
-This is the repository for my 112 term project
 
 # Introduction
 
@@ -9,7 +7,33 @@ Geometronome Dash is an adaptation of “Geometry Dash”, along with some addit
 
 In order to run the project, the following modules must first be downloaded:
 
-1. cmu_112_graphics
+## cmu_112_graphics
+
+From: https://www.cs.cmu.edu/~112/notes/notes-graphics.html
+
+### For Windows:
+1. Run this Python code block in your main Python file (it will print the commands you need to paste into your command prompt):
+'''
+import sys
+print(f'"{sys.executable}" -m pip install pillow')
+print(f'"{sys.executable}" -m pip install requests')
+'''
+2. Open Command Prompt as an administrator user (right click - run as administrator)
+3. Copy-paste each of the two commands printed in step 1 into the command prompt you opened in step 2.
+4. Close the command prompt and close Python.
+5. Re-open Python, and you're set (hopefully)!
+
+### For Mac or Linux
+1. Run this Python code block in your main Python file (it will print the commands you need to paste into your command prompt):
+import sys
+print(f'sudo "{sys.executable}" -m pip install pillow')
+print(f'sudo "{sys.executable}" -m pip install requests')
+2. Open Terminal
+3. Copy-paste each of the two commands printed in step 1 into the command prompt you opened in step 2.
+- If you see a lock and a password is requested, type in the same password that you use to log into your computer.
+4. Close the terminal and close Python.
+5. Re-open Python, and you're set (hopefully)!
+
 2. numpy
 3. 
 
