@@ -16,7 +16,7 @@ HOP_SIZE                = BUFFER_SIZE//2
 PERIOD_SIZE_IN_FRAME    = HOP_SIZE
 
 # So we don't get a truncated string
-numpy.set_printoptions(threshold=sys.maxsize)
+numpy.set_printoptions(threshold = sys.maxsize)
 
 # Here, we will use the wave library to detect the average volumes in a specific sample
 

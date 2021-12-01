@@ -1,5 +1,11 @@
 # Main Code
 
+# Links for all the music used:
+# Stereo Madness: https://www.youtube.com/watch?v=JhKyKEDxo8Q
+# Geometry Dash Splash Screen: https://www.youtube.com/watch?v=qG3wCA4L7Aw
+# Watermelon Sugar: https://www.youtube.com/watch?v=7-x3uD5z1bQ
+# This Game: https://www.youtube.com/watch?v=6CBp4qylX6I
+
 # Importing the standard Python Libraries
 from cmu_112_graphics import *
 import random
