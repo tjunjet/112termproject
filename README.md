@@ -7,11 +7,11 @@ Geometronome Dash is an adaptation of “Geometry Dash”, along with some addit
 
 In order to run the project, the following modules must first be downloaded:
 
-## cmu_112_graphics
+### cmu_112_graphics
 
 From: https://www.cs.cmu.edu/~112/notes/notes-graphics.html
 
-### For Windows:
+For Windows:
 1. Run this Python code block in your main Python file (it will print the commands you need to paste into your command prompt):
 '''
 import sys
@@ -23,7 +23,7 @@ print(f'"{sys.executable}" -m pip install requests')
 4. Close the command prompt and close Python.
 5. Re-open Python, and you're set (hopefully)!
 
-### For Mac or Linux
+For Mac or Linux
 1. Run this Python code block in your main Python file (it will print the commands you need to paste into your command prompt):
 import sys
 print(f'sudo "{sys.executable}" -m pip install pillow')
@@ -34,9 +34,43 @@ print(f'sudo "{sys.executable}" -m pip install requests')
 4. Close the terminal and close Python.
 5. Re-open Python, and you're set (hopefully)!
 
-2. numpy
-3. 
+### numpy
+'''
+pip install numpy
+'''
+
+### Pygame
+'''
+pip install pygame
+'''
+
+### PyAudio
+'''
+pip install PyAudio
+'''
+
+### Aubio
+'''
+pip install aubio
+'''
+
+### PyWavelet
+'''
+pip install PyWavelet
+'''
+
+### Scipy
+'''
+pip install scipy
+'''
+
+### Wave
+'''
+pip install Wave
+'''
 
 # Run Instructions
 
-In order 
+1. In order to run the code, run main.py
+
+# List of Shortcuts for the game
