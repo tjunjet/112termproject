@@ -73,6 +73,7 @@ pip install Wave
 
 # Run Instructions
 
-1. In order to run the code, run main.py
+Run main.py to run the code.
 
 # List of Shortcuts for the game
+There are no shortcuts for this game. 
