@@ -1443,6 +1443,7 @@ def gameOverMode_timerFired(app):
                         lines.remove(item)
                 lines.append(f"{app.songname}: {app.score}")
                 mainLine = lines
+                break
         f.close()
     
     # Write the new data into the file
