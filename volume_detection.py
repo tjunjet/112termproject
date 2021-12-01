@@ -69,5 +69,3 @@ def get_volumes(file):
     # displays at most six numbers behind 0.
     volume = "{:6f}".format(volume)
     return volume
-
-print(get_volumes("Music/Forever Bound - Stereo Madness.wav"))

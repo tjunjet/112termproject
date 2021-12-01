@@ -69,7 +69,6 @@ def getScores(filename):
         lines = f.readlines()
     first, second, third = lines[0], lines[1], lines[2]
     topThreeScores = [first, second, third]
-    print(topThreeScores)
     return topThreeScores
 
 # Boolean options

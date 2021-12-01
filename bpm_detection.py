@@ -156,7 +156,6 @@ def getBPM(filename):
         n = n + 1
 
     bpm = numpy.median(bpms)
-    print(bpms)
     return bpm
 
 # Things to note:
