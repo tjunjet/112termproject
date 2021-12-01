@@ -37,8 +37,8 @@ directions = [NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORT
 def appStarted(app):
     app.mode = "splashScreenMode"
     app.modesList = ['gameMode', 'reverseGravityMode', 'zigZagMode']
-    app.filename = "Music/No Game No Life - Opening _ This Game.wav"
-    app.songname = "Stereo Madness"
+    app.filename = "Music/Forever Bound - Stereo Madness.wav"
+    app.songname = "Watermelon Sugar"
     # Highest scores
     app.topThreeScores = getScores("high_scores.txt")
     restartGame(app)
@@ -200,7 +200,7 @@ def soundOptions(app):
     # https://www.youtube.com/watch?v=qG3wCA4L7Aw
     app.splashScreenMusicFile = "Music/Geometry Dash OST _ Title Screen (Menu Loop).wav"
     app.splashScreenMusic = sound.Sound(app.splashScreenMusicFile)
-    app.splashScreenMusic.start()
+    #app.splashScreenMusic.start()
     app.gameMusic = None
     # Getting the filename of the game song
     # https://www.youtube.com/watch?v=JhKyKEDxo8Q
